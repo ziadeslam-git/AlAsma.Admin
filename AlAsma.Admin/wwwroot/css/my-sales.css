@@ -1,0 +1,169 @@
+﻿/* ══════════════════════════════════════════════════════
+   MY-SALES.CSS — صفحة مبيعات الكاتب
+   مستخرج من تصميم الملفات الأصلية
+══════════════════════════════════════════════════════ */
+
+.page-wrapper {
+    width: 95%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-top: 100px;
+}
+
+/* ─── Top Bar ─────────────────────────────────────────── */
+.top-bar {
+    text-align: center;
+    color: var(--dark-green);
+    margin-bottom: 30px;
+}
+
+    .top-bar h2 {
+        margin-bottom: 5px;
+    }
+
+.welcome-msg {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* ─── Summary Cards ───────────────────────────────────── */
+.summary-cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--white);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    border-top: 4px solid var(--primary);
+}
+
+    .card i {
+        font-size: 2rem;
+        color: var(--primary);
+    }
+
+.card-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.card-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* ─── Table Container ─────────────────────────────────── */
+.table-container {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.table-actions {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* ─── Data Table ──────────────────────────────────────── */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+    .data-table th {
+        background-color: var(--dark-green);
+        color: var(--cream);
+        text-align: center;
+        padding: 15px;
+    }
+
+    .data-table td {
+        padding: 10px;
+        border-bottom: 1px solid var(--cream);
+        color: var(--dark-green);
+        text-align: center;
+    }
+
+    .data-table tr:hover {
+        background-color: #f9f9f7;
+    }
+
+.total-col {
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* ─── Total Row ───────────────────────────────────────── */
+.total-row td {
+    background-color: #f0ede5;
+    font-weight: bold;
+    border-top: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+/* ─── Empty State ─────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+        color: #cbd5e1;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+/* ─── Export Button ───────────────────────────────────── */
+.export-btn {
+    background: #2b5797 !important;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    width: auto;
+    font-size: 0.95rem;
+    transition: 0.3s;
+}
+
+    .export-btn:hover {
+        opacity: 0.9;
+    }
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+    .summary-cards {
+        flex-direction: column;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+}

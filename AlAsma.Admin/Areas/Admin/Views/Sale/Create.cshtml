@@ -1,0 +1,80 @@
+@model AlAsma.Admin.DTOs.Sale.SaleCreateDto
+@{
+    ViewData["Title"] = "تسجيل عملية جديدة";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css">
+}
+
+<div class="page-wrapper">
+    <section class="action-card">
+        <div class="card-header d-flex justify-content-between">
+            <h3><i class="fa-solid fa-file-pen"></i> تسجيل عملية جديدة</h3>
+            <a asp-action="Index" class="btn btn-secondary btn-sm" style="text-decoration:none">العودة للقائمة</a>
+        </div>
+        
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-grid">
+                <div class="input-col">
+                    <label asp-for="BookTitle">اسم الكتاب</label>
+                    <input asp-for="BookTitle" placeholder="أدخل اسم الكتاب">
+                    <span asp-validation-for="BookTitle" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+                
+                <div class="input-col">
+                    <label asp-for="AuthorId">الكاتب</label>
+                    <select asp-for="AuthorId" asp-items="ViewBag.Authors" style="width:100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <option value="">-- اختر الكاتب --</option>
+                    </select>
+                    <span asp-validation-for="AuthorId" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+
+                <div class="input-col">
+                    <label asp-for="StoreLocation">منفذ البيع</label>
+                    <input asp-for="StoreLocation" placeholder="المكتب الرئيسي">
+                    <span asp-validation-for="StoreLocation" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+                
+                <div class="input-col">
+                    <label asp-for="SalePrice">سعر البيع</label>
+                    <div class="input-with-currency">
+                        <input asp-for="SalePrice" type="number" step="0.01" placeholder="0.00">
+                        <span>ج.م</span>
+                    </div>
+                    <span asp-validation-for="SalePrice" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+                
+                <div class="input-col">
+                    <label asp-for="Quantity">الكمية</label>
+                    <input asp-for="Quantity" type="number" min="1" placeholder="1">
+                    <span asp-validation-for="Quantity" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+                
+                <div class="input-col">
+                    <label asp-for="BasicExpenses">مصروفات إضافية</label>
+                    <div class="input-with-currency">
+                        <input asp-for="BasicExpenses" type="number" step="0.01" placeholder="0.00">
+                        <span>ج.م</span>
+                    </div>
+                    <span asp-validation-for="BasicExpenses" class="text-danger" style="font-size:0.85em;"></span>
+                </div>
+                
+                <!-- Hidden Sale Date -->
+                <input asp-for="SaleDate" type="hidden" />
+            </div>
+
+            <div class="form-actions mt-4">
+                <button type="submit" class="btn-primary" style="padding: 10px 30px;">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ العملية
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

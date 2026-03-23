@@ -1,0 +1,150 @@
+@using System.Security.Claims
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<header class="bg-primary text-white shadow-md sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+
+    @* Logo + Name *@
+    <div class="flex items-center gap-3">
+      <img src="/images/logo.png?v=3"
+           alt="الأسمى للنشر والتوزيع"
+           class="h-10 w-10 object-contain rounded-xl bg-white p-1" />
+      <span class="text-lg font-bold tracking-wide hidden sm:block">الأسمى للنشر والتوزيع</span>
+    </div>
+
+    @* Desktop Nav — hidden on mobile *@
+    <nav class="hidden md:flex items-center gap-6 font-semibold text-sm">
+      @if (User.IsInRole("SuperAdmin"))
+      {
+        <a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">الرئيسية</a>
+        <a asp-area="SuperAdmin" asp-controller="AdminManagement" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">إدارة Admins</a>
+        <a asp-area="Admin" asp-controller="Author" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المؤلفون</a>
+        <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المبيعات</a>
+      }
+      @if (User.IsInRole("Admin"))
+      {
+        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">الرئيسية</a>
+        <a asp-area="Admin" asp-controller="Author" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المؤلفون</a>
+        <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
+           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المبيعات</a>
+      }
+      @if (User.IsInRole("Author"))
+      {
+        <a asp-area="Author" asp-controller="Dashboard" asp-action="Index"
+                   class="text-white/80 hover:text-white transition-colors">Dashboard</a>
+      }
+    </nav>
+
+    @* Right side: user + logout + hamburger *@
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-1.5 text-sm font-medium">
+        <span class="material-icons-round text-lg">account_circle</span>
+        <span>@User.Identity?.Name</span>
+      </div>
+      <form asp-action="Logout" asp-controller="Account" asp-area="" method="post" class="hidden sm:block">
+        @Html.AntiForgeryToken()
+        <button type="submit"
+          class="flex items-center gap-1 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-sm transition-colors">
+          <span class="material-icons-round text-sm">logout</span>
+          <span class="hidden sm:inline">خروج</span>
+        </button>
+      </form>
+
+      @* Hamburger button — visible on mobile only *@
+      <button id="menuToggle" class="md:hidden flex items-center justify-center bg-white/10 hover:bg-white/20 p-2 rounded-lg transition-colors">
+        <span class="material-icons-round" id="menuIcon">menu</span>
+      </button>
+    </div>
+  </div>
+
+  @* Mobile Dropdown Menu *@
+  <div id="mobileMenu" class="hidden md:hidden bg-primary border-t border-white/10">
+    <div class="container mx-auto px-4 py-3 flex flex-col gap-1">
+
+      @* User info on mobile *@
+      <div class="flex items-center gap-2 text-sm text-white/70 pb-2 border-b border-white/10 mb-1">
+        <span class="material-icons-round text-base">account_circle</span>
+        <span>@User.Identity?.Name</span>
+      </div>
+
+      @if (User.IsInRole("SuperAdmin"))
+      {
+        <a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">home</span> الرئيسية
+        </a>
+        <a asp-area="SuperAdmin" asp-controller="AdminManagement" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">manage_accounts</span> إدارة Admins
+        </a>
+        <a asp-area="Admin" asp-controller="Author" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">group</span> المؤلفون
+        </a>
+        <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">receipt_long</span> المبيعات
+        </a>
+      }
+      @if (User.IsInRole("Admin"))
+      {
+        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">home</span> الرئيسية
+        </a>
+        <a asp-area="Admin" asp-controller="Author" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">group</span> المؤلفون
+        </a>
+        <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+          <span class="material-icons-round text-base">receipt_long</span> المبيعات
+        </a>
+      }
+      @if (User.IsInRole("Author"))
+      {
+        <a asp-area="Author" asp-controller="Dashboard" asp-action="Index"
+           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+                    <span class="material-icons-round text-base">dashboard</span> Dashboard
+        </a>
+      }
+
+      <div class="border-t border-white/10 mt-1 pt-2">
+        <form asp-action="Logout" asp-controller="Account" asp-area="" method="post">
+          @Html.AntiForgeryToken()
+          <button type="submit"
+            class="w-full flex items-center gap-2 text-red-300 hover:text-red-200 hover:bg-red-900/30 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+            <span class="material-icons-round text-base">logout</span> تسجيل الخروج
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+@* Hamburger toggle script — place before </body> *@
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuIcon = document.getElementById('menuIcon');
+
+  menuToggle?.addEventListener('click', () => {
+    const isOpen = !mobileMenu.classList.contains('hidden');
+    mobileMenu.classList.toggle('hidden', isOpen);
+    menuIcon.textContent = isOpen ? 'menu' : 'close';
+  });
+
+  // Close menu when any link is clicked
+  mobileMenu?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuIcon.textContent = 'menu';
+    });
+  });
+</script>

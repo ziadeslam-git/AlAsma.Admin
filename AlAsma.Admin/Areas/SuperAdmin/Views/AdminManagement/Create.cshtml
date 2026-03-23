@@ -1,0 +1,50 @@
+@model AlAsma.Admin.DTOs.Author.AuthorCreateDto
+@{
+    ViewData["Title"] = "إضافة Admin جديد";
+}
+
+<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
+    <div class="max-w-2xl mx-auto bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center gap-3">
+            <span class="material-icons-round text-slate-500">admin_panel_settings</span>
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">إضافة Admin جديد</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Role سيكون Admin تلقائياً — لا يمكن تغييره</p>
+            </div>
+        </div>
+        <div class="p-6">
+            <form asp-action="Create" method="post" class="space-y-5">
+                <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-3"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label asp-for="Name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">الاسم</label>
+                        <input asp-for="Name" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-transparent dark:text-white focus:border-primary focus:ring-primary text-sm" placeholder="اسم المدير">
+                        <span asp-validation-for="Name" class="text-red-500 text-xs"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Code" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">الكود</label>
+                        <input asp-for="Code" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-transparent dark:text-white focus:border-primary focus:ring-primary text-sm" placeholder="كود فريد">
+                        <span asp-validation-for="Code" class="text-red-500 text-xs"></span>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label asp-for="Password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">كلمة المرور</label>
+                        <input asp-for="Password" type="password" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-transparent dark:text-white focus:border-primary focus:ring-primary text-sm" placeholder="كلمة مرور قوية">
+                        <span asp-validation-for="Password" class="text-red-500 text-xs"></span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                        <span class="material-icons-round text-sm">save</span> حفظ
+                    </button>
+                    <a asp-action="Index" class="border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

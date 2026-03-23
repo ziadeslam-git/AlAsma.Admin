@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/images/logo.png?v=2" />
+    <link rel="apple-touch-icon" href="/images/logo.png?v=2" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#064e3b",
+                        secondary: "#10b981",
+                        accent: "#ef4444",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: { display: ["Cairo", "sans-serif"] },
+                    borderRadius: { DEFAULT: "0.75rem" },
+                    animation: {
+                        'pulse-vertical': 'pulse-vertical 2s cubic-bezier(0.4,0,0.6,1) infinite',
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        'pulse-vertical': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .row-hover { transition: all 0.2s ease-in-out; }
+        .row-hover:hover { background-color: rgba(16,185,129,0.05); transform: translateX(-4px); }
+        .dark .row-hover:hover { background-color: rgba(16,185,129,0.1); }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .countdown { font-variant-numeric: tabular-nums; }
+    </style>
+    @RenderSection("Styles", required: false)
+    <title>@ViewData["Title"] — الأسمى للنشر والتوزيع</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen flex flex-col transition-colors duration-300">
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <partial name="_Navbar" />
+    }
+
+    <main class="flex-grow">
+        @{ await Html.RenderPartialAsync("_Notifications"); }
+        @RenderBody()
+    </main>
+
+    <partial name="_Footer" />
+
+    <button onclick="document.documentElement.classList.toggle('dark')"
+            class="fixed bottom-4 left-4 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-secondary transition-colors z-50">
+        <span class="material-icons-round dark:hidden">dark_mode</span>
+        <span class="material-icons-round hidden dark:block">light_mode</span>
+    </button>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/countdown.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

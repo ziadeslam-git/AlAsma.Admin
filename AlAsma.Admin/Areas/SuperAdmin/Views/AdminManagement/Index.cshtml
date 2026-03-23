@@ -1,0 +1,70 @@
+@model IEnumerable<AlAsma.Admin.DTOs.Author.AuthorListDto>
+@{
+    ViewData["Title"] = "إدارة الـ Admins";
+}
+
+<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">إدارة الـ Admins</h2>
+            <p class="text-slate-500 dark:text-slate-400">قائمة مدراء النظام</p>
+        </div>
+        <a asp-action="Create"
+           class="mt-4 md:mt-0 flex items-center space-x-2 space-x-reverse bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl shadow-sm transition-colors text-sm font-semibold">
+            <span class="material-icons-round text-sm">person_add</span>
+            <span>إضافة Admin جديد</span>
+        </a>
+    </div>
+
+    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 space-x-reverse">
+            <span class="material-icons-round text-slate-500">admin_panel_settings</span>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">قائمة الـ Admins</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse text-sm">
+                <thead>
+                    <tr class="bg-primary text-white">
+                        <th class="py-4 px-6 font-semibold">الاسم</th>
+                        <th class="py-4 px-4 font-semibold text-center">الكود</th>
+                        <th class="py-4 px-4 font-semibold text-center">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach (var admin in Model)
+                    {
+                        <tr class="row-hover bg-surface-light dark:bg-surface-dark">
+                            <td class="py-4 px-6">
+                                <div class="flex items-center space-x-3 space-x-reverse">
+                                    <div class="w-8 h-8 rounded bg-blue-500 text-white flex items-center justify-center font-bold text-xs">
+                                        @admin.Name?.FirstOrDefault()
+                                    </div>
+                                    <span class="font-bold text-slate-900 dark:text-slate-100">@admin.Name</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded text-xs font-mono">@admin.Code</span>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a asp-action="Edit" asp-route-id="@admin.Id"
+                                       class="text-blue-500 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded inline-flex" title="تعديل">
+                                        <span class="material-icons-round text-sm">edit</span>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@admin.Id"
+                                       class="text-accent hover:text-red-700 bg-red-50 dark:bg-red-900/30 p-1.5 rounded inline-flex" title="حذف">
+                                        <span class="material-icons-round text-sm">delete</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="3" class="text-center text-slate-400 py-10">لا يوجد Admins مسجلون</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,192 @@
+@model AuthorDashboardDto
+@{
+    ViewData["Title"] = $"مبيعات {Model.AuthorName}";
+}
+
+<div class="max-w-5xl mx-auto px-4 py-6">
+
+  @* Back link *@
+  <div class="mb-4">
+    <a asp-action="Index" asp-controller="Author" asp-area="Admin"
+       class="flex items-center gap-1 text-sm text-slate-500 hover:text-primary transition-colors w-fit">
+      <span class="material-icons-round text-base">arrow_forward</span>
+      العودة للمؤلفين
+    </a>
+  </div>
+
+  @* Header *@
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">مبيعات @Model.AuthorName</h2>
+    </div>
+    <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
+      <span class="material-icons-round text-slate-400 text-base">calendar_today</span>
+      @DateTime.Now.ToString("dd/MM/yyyy")
+    </div>
+  </div>
+
+  @* Contract Status Card *@
+  @{
+    var borderColor = Model.ContractStatus == "نشط" ? "border-green-400"
+                    : Model.ContractStatus == "ينتهي قريباً" ? "border-yellow-400"
+                    : "border-red-400";
+    var badgeClass = Model.ContractStatus == "نشط" ? "bg-green-100 text-green-700"
+                   : Model.ContractStatus == "ينتهي قريباً" ? "bg-yellow-100 text-yellow-700"
+                   : "bg-red-100 text-red-700";
+    var contractIcon = Model.ContractStatus == "نشط" ? "check_circle"
+                     : Model.ContractStatus == "ينتهي قريباً" ? "schedule"
+                     : "cancel";
+    var contractIconColor = Model.ContractStatus == "نشط" ? "text-green-500"
+                          : Model.ContractStatus == "ينتهي قريباً" ? "text-yellow-500"
+                          : "text-red-500";
+    var countdownColor = Model.DaysRemaining <= 20 ? "text-yellow-600" : "text-green-600";
+  }
+  <div class="bg-white dark:bg-slate-800 rounded-xl border-r-4 @borderColor shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <span class="material-icons-round text-2xl @contractIconColor">@contractIcon</span>
+      <div>
+        <p class="text-xs text-slate-500 mb-0.5">حالة العقد</p>
+        <span class="text-sm font-semibold px-2 py-0.5 rounded-full @badgeClass">@Model.ContractStatus</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-300">
+      @if (Model.ContractStart.HasValue)
+      {
+        <div>
+          <p class="text-xs text-slate-400">البداية</p>
+          <p class="font-medium">@Model.ContractStart.Value.ToString("dd/MM/yyyy")</p>
+        </div>
+      }
+      @if (Model.ContractEnd.HasValue)
+      {
+        <div>
+          <p class="text-xs text-slate-400">الانتهاء</p>
+          <p class="font-medium">@Model.ContractEnd.Value.ToString("dd/MM/yyyy")</p>
+        </div>
+      }
+      @if (Model.DaysRemaining.HasValue)
+      {
+        <div class="text-center">
+          <p class="text-xs text-slate-400">المتبقي</p>
+          <span class="countdown font-mono font-bold text-sm @countdownColor"
+                data-deadline="@Model.ContractEnd?.ToString("o")"></span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @* Stats Cards — compact 2x4 grid *@
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg">
+          <span class="material-icons-round text-green-500 text-lg">payments</span>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700 px-1.5 py-0.5 rounded">إجمالي</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">إجمالي المبيعات</p>
+      <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.TotalSales.ToString("N2") <span class="text-xs font-normal text-slate-400">ج.م</span></p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-red-50 dark:bg-red-900/30 p-2 rounded-lg">
+          <span class="material-icons-round text-red-400 text-lg">remove_circle_outline</span>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700 px-1.5 py-0.5 rounded">مخصوم</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">المصاريف الأساسية</p>
+      <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.BasicFees.ToString("N2") <span class="text-xs font-normal text-slate-400">ج.م</span></p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="@(Model.NetProfit >= 0 ? "bg-emerald-50 dark:bg-emerald-900/30" : "bg-red-50 dark:bg-red-900/30") p-2 rounded-lg">
+          <span class="material-icons-round @(Model.NetProfit >= 0 ? "text-emerald-500" : "text-red-500") text-lg">
+            @(Model.NetProfit >= 0 ? "check_circle" : "warning")
+          </span>
+        </div>
+        <span class="text-xs px-1.5 py-0.5 rounded @(Model.NetProfit >= 0 ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" : "text-red-600 bg-red-50 dark:bg-red-900/20")">ربح</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">صافي الربح</p>
+      <p class="text-lg font-bold @(Model.NetProfit >= 0 ? "text-emerald-600" : "text-red-600")">
+        @Model.NetProfit.ToString("N2") <span class="text-xs font-normal text-slate-400">ج.م</span>
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg">
+          <span class="material-icons-round text-blue-400 text-lg">receipt_long</span>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700 px-1.5 py-0.5 rounded">عدد</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">عمليات البيع</p>
+      <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.SalesCount</p>
+    </div>
+  </div>
+
+  @* Sales Table with Export buttons *@
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-icons-round text-slate-500 text-lg">history</span>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">سجل المبيعات</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <a asp-controller="Sale" asp-area="Admin" asp-action="ExportWordByAuthor" asp-route-authorId="@Model.AuthorId"
+           class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+          <span class="material-icons-round text-sm">description</span> Word
+        </a>
+        <a asp-controller="Sale" asp-area="Admin" asp-action="ExportPdfByAuthor" asp-route-authorId="@Model.AuthorId"
+           class="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+          <span class="material-icons-round text-sm">picture_as_pdf</span> PDF
+        </a>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-right border-collapse text-sm">
+        <thead>
+          <tr class="bg-primary text-white">
+            <th class="py-3 px-4 font-semibold text-sm">الكتاب</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">السعر</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">المصروفات</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">المجموع</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">الكمية</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">المنفذ</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">التاريخ</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          @{ var colors2 = new[]{"bg-pink-500","bg-purple-500","bg-yellow-500","bg-green-500","bg-blue-500"}; int ci2 = 0; }
+          @foreach (var sale in Model.RecentSales)
+          {
+            var c = colors2[ci2++ % colors2.Length];
+            <tr class="hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10 transition-colors">
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg @c text-white flex items-center justify-center font-bold text-xs">@sale.BookTitle.FirstOrDefault()</div>
+                  <span class="font-medium text-slate-800 dark:text-slate-100 text-sm">@sale.BookTitle</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center text-slate-700 dark:text-slate-300 text-sm">@sale.SalePrice.ToString("N2")</td>
+              <td class="py-3 px-4 text-center text-slate-400 text-sm">@sale.BasicExpenses.ToString("N2")</td>
+              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@sale.TotalAmount.ToString("N2")</td>
+              <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.Quantity</td>
+              <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.StoreLocation</td>
+              <td class="py-3 px-4 text-center text-xs text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM/yyyy")<br/>@sale.SaleDate.ToString("hh:mm tt")</td>
+            </tr>
+          }
+          @if (!Model.RecentSales.Any())
+          {
+            <tr><td colspan="7" class="py-10 text-center text-slate-400 text-sm">
+              <span class="material-icons-round text-3xl block mb-1">inbox</span>
+              لا توجد مبيعات مسجلة لهذا المؤلف بعد
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

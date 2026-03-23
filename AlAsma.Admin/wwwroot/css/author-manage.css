@@ -1,0 +1,363 @@
+﻿/* ══════════════════════════════════════════════════════
+   AUTHOR-MANAGE.CSS — صفحة إدارة عقود المؤلفين
+   مستخرج من الملف الأصلي: لاضافة الكاتب.css
+══════════════════════════════════════════════════════ */
+
+.container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 20px auto;
+}
+
+header {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 25px;
+    margin-top: 150px;
+}
+
+    header h1 {
+        color: var(--dark-green);
+    }
+
+    header p {
+        color: var(--text-muted);
+    }
+
+/* ─── Form Section ────────────────────────────────────── */
+.form-section {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+    .input-group input {
+        flex: 1;
+        min-width: 160px;
+        padding: 15px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        outline: none;
+        margin: 0;
+        width: auto;
+        text-align: right;
+        transition: border-color 0.3s;
+    }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            transform: none;
+        }
+
+.date-input {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .date-input label {
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: var(--primary);
+    }
+
+#saveBtn {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+    #saveBtn:hover {
+        background: #003330;
+        opacity: 1;
+    }
+
+/* ─── Search Box ──────────────────────────────────────── */
+.search-wrapper {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    padding: 5px 15px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+    direction: rtl;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+    .search-box:focus-within {
+        transform: scale(1.05);
+        outline: 2px solid var(--dark-green);
+    }
+
+    .search-box input {
+        border: none !important;
+        outline: none !important;
+        flex: 1;
+        padding: 5px 7px;
+        font-size: 14px;
+        background: transparent;
+        width: auto;
+        margin: 0;
+        transform: none !important;
+    }
+
+.search-options {
+    display: flex;
+    gap: 5px;
+    padding-left: 5px;
+}
+
+    .search-options button {
+        background-color: var(--cream);
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        padding: 6px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        color: var(--dark-green);
+        transition: all 0.2s;
+        width: auto;
+        margin: 0;
+        font-weight: normal;
+    }
+
+        .search-options button.active-opt {
+            background: var(--primary);
+            color: white;
+        }
+
+        .search-options button:hover {
+            background-color: var(--dark-green);
+            color: var(--cream);
+            border-color: var(--dark-green);
+        }
+
+/* ─── Table Section ───────────────────────────────────── */
+.table-section {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: var(--primary);
+    color: white;
+    padding: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+/* ─── Status Badges ───────────────────────────────────── */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+    .status-badge.active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-badge.expired {
+        background: var(--danger);
+        color: white;
+    }
+
+/* ─── Info Modal ──────────────────────────────────────── */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    width: 350px;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 15px;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    cursor: pointer;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: var(--danger);
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+    }
+
+        .input-group input {
+            width: 100% !important;
+        }
+
+    #saveBtn {
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+
+    .search-box {
+        gap: 10px;
+        padding: 10px;
+        width: 85%;
+    }
+
+    .search-options {
+        width: 50%;
+        justify-content: center;
+    }
+
+        .search-options button {
+            flex: 1;
+            padding: 7px;
+        }
+
+    .table-section {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100% !important;
+        table-layout: fixed;
+    }
+
+    th, td {
+        padding: 6px 2px !important;
+        font-size: 9px !important;
+        word-wrap: break-word;
+    }
+
+        th:nth-child(2), td:nth-child(2) {
+            width: 15%;
+        }
+
+        th:nth-child(3), td:nth-child(3),
+        th:nth-child(4), td:nth-child(4) {
+            width: 12%;
+        }
+
+    .status-badge {
+        padding: 2px 3px;
+        font-size: 7px;
+    }
+
+    .modal-content {
+        width: 80% !important;
+        margin: 20% auto;
+        padding: 15px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    th, td {
+        font-size: 8px !important;
+    }
+}
+
+/* ─── Pagination Bar ──────────────────────────────────── */
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 16px 0 6px;
+    flex-wrap: wrap;
+}
+
+.pg-btn {
+    background: var(--white) !important;
+    border: 1px solid #d1d5db !important;
+    color: var(--primary) !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    font-size: 0.85rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-weight: normal;
+}
+
+    .pg-btn:hover:not(:disabled) {
+        background: var(--primary) !important;
+        color: white !important;
+        opacity: 1;
+    }
+
+    .pg-btn:disabled { opacity: 0.35 !important; cursor: default; }
+
+    .pg-btn.pg-active {
+        background: var(--primary) !important;
+        color: white !important;
+        font-weight: bold;
+        border-color: var(--primary) !important;
+    }
+
+.pg-dots { color: #94a3b8; padding: 0 4px; font-size: 0.85rem; }
+.pg-info { font-size: 0.78rem; color: var(--text-muted); margin-right: 8px; white-space: nowrap; }

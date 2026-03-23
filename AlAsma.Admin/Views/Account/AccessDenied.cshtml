@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "غير مصرح";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/shared.css">
+    <title>غير مصرح — الأسمى</title>
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg, #0a0a0a); margin: 0; font-family: 'Segoe UI', sans-serif; }
+        .denied-box { text-align: center; padding: 3rem; background: #1a1a1a; border-radius: 16px; border: 1px solid #333; max-width: 480px; }
+        .denied-box i { font-size: 4rem; color: #e67e22; margin-bottom: 1rem; display: block; }
+        .denied-box h1 { color: #fff; font-size: 1.8rem; margin-bottom: .5rem; }
+        .denied-box p { color: #aaa; margin-bottom: 2rem; }
+        .back-btn { display: inline-block; padding: .75rem 2rem; background: #004643; color: white; border-radius: 8px; text-decoration: none; font-size: 1rem; }
+        .back-btn:hover { background: #006560; }
+    </style>
+</head>
+<body>
+    <div class="denied-box">
+        <i class="fa-solid fa-lock"></i>
+        <h1>غير مصرح لك</h1>
+        <p>ليس لديك صلاحية للوصول إلى هذه الصفحة.</p>
+        <a asp-controller="Account" asp-action="Login" asp-area="" class="back-btn">
+            <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول بحساب آخر
+        </a>
+    </div>
+</body>
+</html>

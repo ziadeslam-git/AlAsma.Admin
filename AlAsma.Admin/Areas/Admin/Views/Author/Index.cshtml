@@ -1,0 +1,228 @@
+@model IEnumerable<AlAsma.Admin.DTOs.Author.AuthorListDto>
+@{
+    ViewData["Title"] = "إدارة عقود المؤلفين";
+}
+
+<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">إدارة عقود المؤلفين</h2>
+            <p class="text-slate-500 dark:text-slate-400">مؤسسة الأسمى للنشر والتوزيع</p>
+        </div>
+              @if (User.IsInRole("SuperAdmin"))
+      {
+        <div class="mt-4 md:mt-0">
+            <a asp-action="Create"
+               class="flex items-center space-x-2 space-x-reverse bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl shadow-sm transition-colors duration-200 text-sm font-semibold">
+                <span class="material-icons-round text-sm">person_add</span>
+                <span>إضافة مؤلف جديد</span>
+            </a>
+        </div>
+      }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-xl p-4 text-green-700 dark:text-green-400 text-sm flex items-center gap-2">
+            <span class="material-icons-round text-sm">check_circle</span>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    <!-- Authors Table -->
+    <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <span class="material-icons-round text-slate-500">groups</span>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">قائمة المؤلفين</h3>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse">
+                <thead>
+                    <tr class="bg-primary text-white text-sm">
+                        <th class="py-4 px-6 font-semibold">المؤلف</th>
+                        <th class="py-4 px-4 font-semibold text-center">الكود</th>
+                        <th class="py-4 px-4 font-semibold text-center">أساسية</th>
+                        <th class="py-4 px-4 font-semibold text-center">انتهاء العقد</th>
+                        <th class="py-4 px-4 font-semibold text-center">الحالة</th>
+                        <th class="py-4 px-4 font-semibold text-center">المتبقي</th>
+                        <th class="py-4 px-4 font-semibold text-center">المبيعات</th>
+                        <th class="py-4 px-6 font-semibold text-center">إدارة</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800">
+                    @{
+                        var colors = new[] { "bg-blue-500", "bg-green-500", "bg-purple-500", "bg-pink-500", "bg-yellow-500", "bg-red-500", "bg-indigo-500" };
+                        int idx = 0;
+                    }
+                    @foreach (var author in Model)
+                    {
+                        var color = colors[idx % colors.Length];
+                        idx++;
+                        var firstChar = author.Name?.FirstOrDefault() ?? '؟';
+                        string badgeColor = author.ContractStatus switch
+                        {
+                            "نشط" => "bg-green-100 text-green-700",
+                            "ينتهي قريباً" => "bg-yellow-100 text-yellow-700",
+                            "منتهي" => "bg-red-100 text-red-700",
+                            _ => "bg-slate-100 text-slate-600"
+                        };
+
+                        <tr class="row-hover @(idx % 2 == 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : "bg-surface-light dark:bg-surface-dark")">
+                            <td class="py-4 px-6">
+                                <div class="flex items-center space-x-3 space-x-reverse">
+                                    <div class="w-8 h-8 rounded @color text-white flex items-center justify-center font-bold text-xs">
+                                        @firstChar
+                                    </div>
+                                    <span class="font-bold text-slate-900 dark:text-slate-100">@author.Name</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded text-xs font-mono">@author.Code</span>
+                            </td>
+                            <td class="py-4 px-4 text-center font-medium text-slate-700 dark:text-slate-300">@author.BasicFees.ToString("N2")</td>
+                            <td class="py-4 px-4 text-center text-sm text-slate-600 dark:text-slate-400">
+                                @(author.ContractEnd?.ToString("yyyy-MM-dd") ?? "—")
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <span class="@badgeColor px-2 py-1 rounded text-xs font-medium">@author.ContractStatus</span>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                @if (author.ContractEnd.HasValue && author.ContractStatus != "منتهي")
+                                {
+                                    <span class="countdown font-mono text-xs text-slate-600 dark:text-slate-400" data-deadline="@author.ContractEnd.Value.ToString("o")">
+                                        جاري الحساب...
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400">—</span>
+                                }
+                            </td>
+                            <td class="py-4 px-4 text-center text-slate-700 dark:text-slate-300">@author.SalesCount</td>
+                            <td class="py-4 px-6 text-center">
+                                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                                    @if (User.IsInRole("SuperAdmin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@author.Id"
+                                        class="text-blue-500 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded" title="تعديل">
+                                            <span class="material-icons-round text-sm">edit</span>
+                                        </a>
+                                    }
+
+                                    <a asp-area="Admin" asp-controller="Sale" asp-action="ByAuthor" asp-route-authorId="@author.Id"
+                                       class="text-green-500 hover:text-green-700 bg-green-50 dark:bg-green-900/30 p-1.5 rounded" title="مبيعاته">
+                                        <span class="material-icons-round text-sm">payments</span>
+                                    </a>
+                                    @if (User.IsInRole("SuperAdmin"))
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@author.Id"
+                                        class="text-accent hover:text-red-700 bg-red-50 dark:bg-red-900/30 p-1.5 rounded" title="حذف">
+                                            <span class="material-icons-round text-sm">delete</span>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-slate-400 py-12">
+                                <span class="material-icons-round text-4xl block mb-2">group_off</span>
+                                لا يوجد مؤلفين مسجلين حالياً
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @{
+            int currentPage = ViewBag.CurrentPage;
+            int totalPages = ViewBag.TotalPages;
+            int totalCount = ViewBag.TotalCount;
+        }
+
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50 flex-wrap gap-3">
+            <span class="text-sm text-slate-500">
+                عرض @((currentPage - 1) * 10 + 1) إلى @(Math.Min(currentPage * 10, totalCount)) من @totalCount سجل
+            </span>
+            <div class="flex items-center gap-1">
+
+                @* Previous *@
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Author" asp-action="Index" asp-route-page="@(currentPage - 1)"
+                       class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                        <span class="material-icons-round text-sm">chevron_right</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+                        <span class="material-icons-round text-sm">chevron_right</span>
+                    </span>
+                }
+
+                @* Page numbers — show max 5 around current *@
+                @{
+                    int startPage = Math.Max(1, currentPage - 2);
+                    int endPage = Math.Min(totalPages, currentPage + 2);
+                }
+
+                @if (startPage > 1)
+                {
+                    <a asp-controller="Author" asp-action="Index" asp-route-page="1"
+                       class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
+                    @if (startPage > 2)
+                    {
+                        <span class="px-2 text-slate-400 text-sm">...</span>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    @if (i == currentPage)
+                    {
+                        <span class="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium">@i</span>
+                    }
+                    else
+                    {
+                        <a asp-controller="Author" asp-action="Index" asp-route-page="@i"
+                           class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    @if (endPage < totalPages - 1)
+                    {
+                        <span class="px-2 text-slate-400 text-sm">...</span>
+                    }
+                    <a asp-controller="Author" asp-action="Index" asp-route-page="@totalPages"
+                       class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
+                }
+
+                @* Next *@
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="Author" asp-action="Index" asp-route-page="@(currentPage + 1)"
+                       class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                        <span class="material-icons-round text-sm">chevron_left</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+                        <span class="material-icons-round text-sm">chevron_left</span>
+                    </span>
+                }
+
+            </div>
+        </div>
+    </div>
+</main>
