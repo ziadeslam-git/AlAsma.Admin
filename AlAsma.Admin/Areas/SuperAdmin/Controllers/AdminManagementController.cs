@@ -25,7 +25,7 @@ namespace AlAsma.Admin.Areas.SuperAdmin.Controllers
         {
             var allAuthors = await _unitOfWork.Authors.GetAllAsync();
             var admins = allAuthors
-                .Where(a => a.Role == "Admin")
+                .Where(a => a.Role == "Admin" && !a.IsDeleted)
                 .Select(a => new AuthorListDto
                 {
                     Id = a.Id,
@@ -56,7 +56,7 @@ namespace AlAsma.Admin.Areas.SuperAdmin.Controllers
 
             if (!await _authorService.IsCodeUniqueAsync(dto.Code))
             {
-                ModelState.AddModelError("Code", "هذا الكود مستخدم بالفعل");
+                ModelState.AddModelError("Code", "هذا الكود موجود بالفعل يجب إدخال كود آخر ");
                 return View(dto);
             }
 
@@ -74,7 +74,17 @@ namespace AlAsma.Admin.Areas.SuperAdmin.Controllers
             };
 
             await _unitOfWork.Authors.AddAsync(admin);
-            await _unitOfWork.SaveChangesAsync();
+            
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            {
+                // Catch cases where code exists in soft-deleted records or other DB-level unique constraints
+                ModelState.AddModelError("Code", "هذا الكود موجود بالفعل يجب إدخال كود آخر ");
+                return View(dto);
+            }
 
             TempData["Success"] = "تم إنشاء Admin جديد بنجاح";
             return RedirectToAction(nameof(Index));
@@ -145,7 +155,6 @@ namespace AlAsma.Admin.Areas.SuperAdmin.Controllers
             return View(dto);
         }
 
-        // POST: SuperAdmin/AdminManagement/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -153,7 +162,10 @@ namespace AlAsma.Admin.Areas.SuperAdmin.Controllers
             var author = await _unitOfWork.Authors.GetByIdAsync(id);
             if (author == null || author.Role != "Admin") return NotFound();
 
-            await _authorService.SoftDeleteAuthorAsync(id);
+            author.IsDeleted = true;
+            _unitOfWork.Authors.Update(author);
+            await _unitOfWork.SaveChangesAsync();
+
             TempData["Success"] = "تم حذف الـ Admin بنجاح";
             return RedirectToAction(nameof(Index));
         }

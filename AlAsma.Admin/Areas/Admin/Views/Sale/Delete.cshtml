@@ -43,17 +43,17 @@
       </div>
 
       @* Footer *@
-      <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
+      <div class="px-4 sm:px-6 py-4 border-t border-slate-100 bg-slate-50 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
         <a asp-action="Index"
-           class="px-5 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
+           class="w-full sm:w-auto text-center px-5 py-3 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
           إلغاء
         </a>
-        <form asp-action="Delete" method="post" class="inline">
+        <form asp-action="Delete" method="post" class="w-full sm:w-auto">
           @Html.AntiForgeryToken()
           <input type="hidden" asp-for="Id" />
           <button type="submit"
-                  class="bg-accent hover:bg-red-700 text-white px-5 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
-            <span class="material-icons-round text-sm">delete</span>
+                  class="w-full sm:w-auto bg-accent hover:bg-red-700 text-white px-5 py-3 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-colors">
+            <span class="material-icons-round text-sm block">delete</span>
             حذف نهائي
           </button>
         </form>

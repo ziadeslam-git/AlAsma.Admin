@@ -3,9 +3,9 @@
     ViewData["Title"] = "حذف مدير";
 }
 
-<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
-    <div class="max-w-lg mx-auto mt-4">
-        <div class="bg-white dark:bg-slate-800 rounded shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+<main class="min-h-[60vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800 px-6 py-4 flex items-center gap-3">
                 <span class="material-icons-round text-accent text-2xl">warning_amber</span>
                 <h2 class="text-lg font-bold text-slate-800 dark:text-white">تأكيد الحذف</h2>
@@ -20,12 +20,12 @@
                     ملاحظة: سيتم إخفاء الحساب ولن يُحذف نهائياً (Soft Delete).
                 </p>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50">
-                <a asp-action="Index" class="px-5 py-2 rounded border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">إلغاء</a>
-                <form asp-action="Delete" method="post" class="inline">
+            <div class="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+                <a asp-action="Index" class="w-full sm:w-auto text-center px-5 py-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">إلغاء</a>
+                <form asp-action="Delete" method="post" class="w-full sm:w-auto">
                     <input type="hidden" asp-for="Id" />
-                    <button type="submit" class="bg-accent hover:bg-red-700 text-white px-5 py-2 rounded font-medium text-sm flex items-center gap-2 transition-colors">
-                        <span class="material-icons-round text-sm">delete</span>
+                    <button type="submit" class="w-full sm:w-auto bg-accent hover:bg-red-700 text-white px-5 py-3 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-colors">
+                        <span class="material-icons-round text-sm block">delete</span>
                         تأكيد الحذف
                     </button>
                 </form>

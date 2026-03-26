@@ -39,7 +39,82 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700">
+            @foreach (var author in Model)
+            {
+                var borderColor = author.ContractStatus == "نشط" ? "border-green-400"
+                    : author.ContractStatus == "ينتهي قريباً" ? "border-yellow-400"
+                    : "border-red-400";
+                <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
+                                @(author.Name?.FirstOrDefault() ?? '؟')
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-white">@author.Name</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">@author.Code</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@author.Id"
+                                   class="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-2 rounded-lg">
+                                    <span class="material-icons-round text-sm block">edit</span>
+                                </a>
+                            }
+                            <a asp-action="ByAuthor" asp-controller="Sale" asp-route-authorId="@author.Id"
+                               class="bg-green-50 dark:bg-green-900/30 text-green-500 p-2 rounded-lg">
+                                <span class="material-icons-round text-sm block">receipt_long</span>
+                            </a>
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@author.Id"
+                                   class="bg-red-50 dark:bg-red-900/30 text-red-400 p-2 rounded-lg">
+                                    <span class="material-icons-round text-sm block">delete</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+                            <p class="text-slate-400 mb-0.5">انتهاء العقد</p>
+                            <p class="font-medium text-slate-700 dark:text-slate-300">
+                                @(author.ContractEnd.HasValue ? author.ContractEnd.Value.ToString("dd/MM/yyyy") : "غير محدد")
+                            </p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+                            <p class="text-slate-400 mb-0.5">الحالة</p>
+                            @{
+                                var badgeClassCard = author.ContractStatus == "نشط" ? "bg-green-100 text-green-700"
+                                    : author.ContractStatus == "ينتهي قريباً" ? "bg-yellow-100 text-yellow-700"
+                                    : author.ContractStatus == "منتهي" ? "bg-red-100 text-red-700"
+                                    : "bg-slate-100 text-slate-600";
+                            }
+                            <span class="@badgeClassCard px-2 py-0.5 rounded text-xs font-medium inline-block mt-0.5">@author.ContractStatus</span>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+                            <p class="text-slate-400 mb-0.5">المبيعات</p>
+                            <p class="font-medium text-slate-700 dark:text-slate-300">@author.SalesCount</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+                            <p class="text-slate-400 mb-0.5">أساسية</p>
+                            <p class="font-medium text-slate-700 dark:text-slate-300">@author.BasicFees.ToString("N0")</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (!Model.Any())
+            {
+                <div class="py-12 text-center text-slate-400">
+                    <span class="material-icons-round text-4xl block mb-2">group_off</span>
+                    <p class="text-sm">لا يوجد مؤلفين مسجلين حالياً</p>
+                </div>
+            }
+        </div>
+
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-right border-collapse">
                 <thead>
                     <tr class="bg-primary text-white text-sm">
@@ -157,13 +232,13 @@
                 @if (currentPage > 1)
                 {
                     <a asp-controller="Author" asp-action="Index" asp-route-page="@(currentPage - 1)"
-                       class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                       class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
                         <span class="material-icons-round text-sm">chevron_right</span>
                     </a>
                 }
                 else
                 {
-                    <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
                         <span class="material-icons-round text-sm">chevron_right</span>
                     </span>
                 }
@@ -177,7 +252,7 @@
                 @if (startPage > 1)
                 {
                     <a asp-controller="Author" asp-action="Index" asp-route-page="1"
-                       class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
+                       class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
                     @if (startPage > 2)
                     {
                         <span class="px-2 text-slate-400 text-sm">...</span>
@@ -188,12 +263,12 @@
                 {
                     @if (i == currentPage)
                     {
-                        <span class="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium">@i</span>
+                        <span class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium">@i</span>
                     }
                     else
                     {
                         <a asp-controller="Author" asp-action="Index" asp-route-page="@i"
-                           class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
+                           class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
                     }
                 }
 
@@ -204,20 +279,20 @@
                         <span class="px-2 text-slate-400 text-sm">...</span>
                     }
                     <a asp-controller="Author" asp-action="Index" asp-route-page="@totalPages"
-                       class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
+                       class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
                 }
 
                 @* Next *@
                 @if (currentPage < totalPages)
                 {
                     <a asp-controller="Author" asp-action="Index" asp-route-page="@(currentPage + 1)"
-                       class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                       class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
                         <span class="material-icons-round text-sm">chevron_left</span>
                     </a>
                 }
                 else
                 {
-                    <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
                         <span class="material-icons-round text-sm">chevron_left</span>
                     </span>
                 }

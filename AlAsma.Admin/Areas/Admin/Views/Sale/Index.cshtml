@@ -33,8 +33,8 @@
 }
 
 @* Stats Cards *@
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-slate-100 dark:border-slate-700">
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-10">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
     <div class="flex justify-between items-start mb-4">
       <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl text-blue-500">
         <span class="material-icons-round">receipt_long</span>
@@ -44,9 +44,9 @@
       </span>
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي العمليات</h3>
-    <p class="text-3xl font-bold text-slate-900 dark:text-white">@Model.Count()</p>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@Model.Count()</p>
   </div>
-  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-slate-100 dark:border-slate-700">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
     <div class="flex justify-between items-start mb-4">
       <div class="bg-green-50 dark:bg-green-900/30 p-3 rounded-xl text-green-500">
         <span class="material-icons-round">payments</span>
@@ -56,12 +56,12 @@
       </span>
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي المبالغ</h3>
-    <p class="text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
       @Model.Sum(s => s.TotalAmount).ToString("N2")
       <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
     </p>
   </div>
-  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-slate-100 dark:border-slate-700">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
     <div class="flex justify-between items-start mb-4">
       <div class="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-xl text-purple-500">
         <span class="material-icons-round">menu_book</span>
@@ -69,7 +69,7 @@
       <span class="text-xs font-semibold text-slate-500 bg-slate-50 dark:bg-slate-700 px-2 py-1 rounded-lg">إجمالي</span>
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">كتب مباعة</h3>
-    <p class="text-3xl font-bold text-slate-900 dark:text-white">@Model.Sum(s => s.Quantity)</p>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@Model.Sum(s => s.Quantity)</p>
   </div>
 </div>
 
@@ -82,7 +82,7 @@
   <form asp-action="Create" method="post" class="space-y-6">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"></div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">اسم الكتاب</label>
         <input name="BookTitle" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" placeholder="أدخل اسم الكتاب" type="text" required />
@@ -139,16 +139,32 @@
       <span class="material-icons-round text-slate-500">history</span>
       <h3 class="text-lg font-bold text-slate-800 dark:text-white">أحدث العمليات</h3>
     </div>
-    <div class="flex-grow max-w-2xl mx-auto w-full">
-      <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600">
+    <!-- Desktop Search Bar -->
+    <div class="hidden md:flex flex-grow max-w-2xl mx-auto w-full">
+      <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600 w-full">
         <div class="relative flex-grow">
           <span class="absolute right-3 top-2.5 text-slate-400 material-icons-round text-sm">search</span>
-          <input id="searchInput" class="w-full bg-transparent border-none focus:ring-0 text-sm py-2 pr-9 pl-4 placeholder-slate-400 dark:text-white" placeholder="بحث..." type="text" oninput="filterTable()" />
+          <input id="searchInputDesktop" class="w-full bg-transparent border-none focus:ring-0 text-sm py-2 pr-9 pl-4 placeholder-slate-400 dark:text-white" placeholder="بحث..." type="text" oninput="filterTable('Desktop')" />
         </div>
         <div class="flex bg-slate-200 dark:bg-slate-600 rounded-full p-0.5">
-          <button onclick="setSearchMode('book')" id="btnBook" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-primary text-white shadow-sm">اسم الكتاب</button>
-          <button onclick="setSearchMode('author')" id="btnAuthor" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">اسم الكاتب</button>
-          <button onclick="setSearchMode('code')" id="btnCode" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">كود الكاتب</button>
+          <button onclick="setSearchMode('book')" id="btnBookDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-primary text-white shadow-sm">اسم الكتاب</button>
+          <button onclick="setSearchMode('author')" id="btnAuthorDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">اسم الكاتب</button>
+          <button onclick="setSearchMode('code')" id="btnCodeDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">كود الكاتب</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Search Bar -->
+    <div class="md:hidden flex flex-grow w-full mt-4 w-full">
+      <div class="flex flex-col bg-slate-100 dark:bg-slate-700 rounded-xl p-1 border border-slate-200 dark:border-slate-600 gap-2 w-full">
+        <div class="relative w-full">
+          <span class="absolute right-3 top-2 text-slate-400 material-icons-round text-sm">search</span>
+          <input id="searchInputMobile" class="w-full bg-transparent border-none focus:ring-0 text-sm py-1.5 pr-9 pl-4 placeholder-slate-400 dark:text-white" placeholder="بحث..." type="text" oninput="filterTable('Mobile')" />
+        </div>
+        <div class="flex bg-slate-200 dark:bg-slate-600 rounded-lg p-0.5 w-full justify-between">
+          <button onclick="setSearchMode('book')" id="btnBookMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors bg-primary text-white shadow-sm flex-1">اسم الكتاب</button>
+          <button onclick="setSearchMode('author')" id="btnAuthorMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1">اسم الكاتب</button>
+          <button onclick="setSearchMode('code')" id="btnCodeMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1">كود الكاتب</button>
         </div>
       </div>
     </div>
@@ -156,7 +172,67 @@
       <span class="material-icons-round text-sm">download</span> تصدير
     </a>
   </div>
-  <div class="overflow-x-auto">
+  <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700" id="salesMobileList">
+    @foreach (var sale in Model)
+    {
+      <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group" data-book="@sale.BookTitle.ToLower()" data-author="@sale.AuthorName.ToLower()" data-code="@sale.AuthorCode.ToLower()">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">
+              @sale.BookTitle.FirstOrDefault()
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white text-sm">@sale.BookTitle</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">@sale.AuthorName</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="editFromRow(this)"
+                    data-id="@sale.Id"
+                    data-booktitle="@sale.BookTitle"
+                    data-authorid="@sale.AuthorId"
+                    data-storelocation="@sale.StoreLocation"
+                    data-saleprice="@sale.SalePrice"
+                    data-quantity="@sale.Quantity"
+                    data-expenses="@sale.BasicExpenses"
+                    class="bg-blue-50 dark:bg-blue-900/30 text-blue-500 p-2 rounded-lg">
+              <span class="material-icons-round text-sm block">edit</span>
+            </button>
+            <a asp-action="Delete" asp-route-id="@sale.Id"
+               class="bg-red-50 dark:bg-red-900/30 text-red-500 p-2 rounded-lg">
+              <span class="material-icons-round text-sm block">delete</span>
+            </a>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
+            <p class="text-slate-400 mb-0.5">السعر</p>
+            <p class="font-semibold text-slate-700 dark:text-slate-300">@sale.SalePrice.ToString("N0")</p>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
+            <p class="text-slate-400 mb-0.5">الكمية</p>
+            <p class="font-semibold text-slate-700 dark:text-slate-300">@sale.Quantity</p>
+          </div>
+          <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-2 text-center">
+            <p class="text-emerald-600 dark:text-emerald-400 mb-0.5">المجموع</p>
+            <p class="font-bold text-emerald-700 dark:text-emerald-300">@sale.TotalAmount.ToString("N0")</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mt-2 text-xs text-slate-400">
+          <span>@sale.StoreLocation</span>
+          <span dir="ltr">@sale.SaleDate.ToString("dd/MM/yyyy")</span>
+        </div>
+      </div>
+    }
+    @if (!Model.Any())
+    {
+      <div class="py-12 text-center text-slate-400">
+        <span class="material-icons-round text-4xl block mb-2">inbox</span>
+        <p class="text-sm">لا توجد عمليات بعد</p>
+      </div>
+    }
+  </div>
+  <div class="hidden md:block overflow-x-auto">
     <table class="w-full text-right border-collapse text-sm" id="salesTable">
       <thead>
         <tr class="bg-primary text-white">
@@ -240,13 +316,13 @@
       @if (currentPage > 1)
       {
         <a asp-action="Index" asp-route-page="@(currentPage - 1)"
-           class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+           class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
           <span class="material-icons-round text-sm">chevron_right</span>
         </a>
       }
       else
       {
-        <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+        <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
           <span class="material-icons-round text-sm">chevron_right</span>
         </span>
       }
@@ -260,7 +336,7 @@
       @if (startPage > 1)
       {
         <a asp-action="Index" asp-route-page="1"
-           class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
+           class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
         @if (startPage > 2)
         {
           <span class="px-2 text-slate-400 text-sm">...</span>
@@ -271,12 +347,12 @@
       {
         @if (i == currentPage)
         {
-          <span class="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium">@i</span>
+          <span class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium">@i</span>
         }
         else
         {
           <a asp-action="Index" asp-route-page="@i"
-             class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
+             class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
         }
       }
 
@@ -287,20 +363,20 @@
           <span class="px-2 text-slate-400 text-sm">...</span>
         }
         <a asp-action="Index" asp-route-page="@totalPages"
-           class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
+           class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
       }
 
       @* Next *@
       @if (currentPage < totalPages)
       {
         <a asp-action="Index" asp-route-page="@(currentPage + 1)"
-           class="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+           class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
           <span class="material-icons-round text-sm">chevron_left</span>
         </a>
       }
       else
       {
-        <span class="p-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
+        <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed">
           <span class="material-icons-round text-sm">chevron_left</span>
         </span>
       }
@@ -381,16 +457,41 @@ let searchMode = 'book';
 function setSearchMode(mode) {
     searchMode = mode;
     ['book','author','code'].forEach(m => {
-        const btn = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1));
-        if(btn) btn.className = m === mode
+        const btnD = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1) + 'Desktop');
+        if(btnD) btnD.className = m === mode
             ? 'px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-primary text-white shadow-sm'
             : 'px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900';
+            
+        const btnM = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1) + 'Mobile');
+        if(btnM) btnM.className = m === mode
+            ? 'whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors bg-primary text-white shadow-sm flex-1'
+            : 'whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1';
     });
-    filterTable();
+    filterTable('Sync');
 }
-function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
+function filterTable(source) {
+    const inputD = document.getElementById('searchInputDesktop');
+    const inputM = document.getElementById('searchInputMobile');
+    
+    let q = '';
+    if (source === 'Desktop' && inputD) {
+        q = inputD.value;
+        if(inputM) inputM.value = q;
+    } else if (source === 'Mobile' && inputM) {
+        q = inputM.value;
+        if(inputD) inputD.value = q;
+    } else {
+        q = window.innerWidth >= 768 && inputD ? inputD.value : (inputM ? inputM.value : '');
+    }
+    
+    q = q.toLowerCase();
+    
     document.querySelectorAll('#salesTableBody tr').forEach(row => {
+        const val = row.dataset[searchMode] || '';
+        row.style.display = val.includes(q) ? '' : 'none';
+    });
+
+    document.querySelectorAll('#salesMobileList > div.group').forEach(row => {
         const val = row.dataset[searchMode] || '';
         row.style.display = val.includes(q) ? '' : 'none';
     });
