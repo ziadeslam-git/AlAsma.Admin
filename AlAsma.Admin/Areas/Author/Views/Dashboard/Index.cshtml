@@ -132,10 +132,6 @@
            class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
           <span class="material-icons-round text-sm">description</span> Word
         </a>
-        <a asp-action="ExportPdf" asp-route-authorId="@Model.AuthorId"
-           class="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-          <span class="material-icons-round text-sm">picture_as_pdf</span> PDF
-        </a>
       </div>
     </div>
     <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700">
@@ -157,14 +153,18 @@
               <span class="text-xs text-slate-400">@sale.SaleDate.ToString("dd/MM/yyyy")</span>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
-              <p class="text-slate-400 mb-0.5">الكمية</p>
-              <p class="font-semibold text-slate-700 dark:text-slate-300">@sale.Quantity</p>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div class="bg-slate-700/50 rounded-lg p-2 text-center">
               <p class="text-slate-400 mb-0.5">السعر</p>
-              <p class="font-semibold text-slate-700 dark:text-slate-300">@sale.SalePrice.ToString("N0")</p>
+              <p class="font-semibold text-slate-200">@sale.SalePrice.ToString("N0")</p>
+            </div>
+            <div class="bg-slate-700/50 rounded-lg p-2 text-center">
+              <p class="text-slate-400 mb-0.5">الكمية</p>
+              <p class="font-semibold text-slate-200">@sale.Quantity</p>
+            </div>
+            <div class="bg-red-900/30 rounded-lg p-2 text-center">
+              <p class="text-red-400 mb-0.5">المصروفات</p>
+              <p class="font-semibold text-red-300">@sale.BasicExpenses.ToString("N0")</p>
             </div>
           </div>
         </div>

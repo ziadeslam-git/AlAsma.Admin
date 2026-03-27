@@ -97,5 +97,25 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/countdown.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
+    <script>
+        // Password eye toggle — always visible, works with typing, paste, and browser autofill
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.password-wrapper').forEach(function (wrapper) {
+                var input = wrapper.querySelector('input');
+                var btn = wrapper.querySelector('.eye-toggle');
+                var icon = wrapper.querySelector('.eye-icon');
+                if (!input || !btn || !icon) return;
+                btn.addEventListener('click', function () {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.textContent = 'visibility_off';
+                    } else {
+                        input.type = 'password';
+                        icon.textContent = 'visibility';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

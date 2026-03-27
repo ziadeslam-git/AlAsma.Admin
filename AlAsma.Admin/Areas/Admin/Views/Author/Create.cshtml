@@ -26,7 +26,18 @@
                         </div>
                         <div class="md:col-span-2">
                             <label asp-for="Password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">كلمة المرور</label>
-                            <input asp-for="Password" type="password" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3" placeholder="كلمة مرور قوية" />
+                            <div class="password-wrapper relative">
+                                <input asp-for="Password"
+                                       id="pwd_authorCreate"
+                                       type="password"
+                                       autocomplete="new-password"
+                                       class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3 pl-11"
+                                       placeholder="كلمة مرور قوية" />
+                                <button type="button"
+                                        class="eye-toggle absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
+                                    <span class="eye-icon material-icons-round text-xl">visibility</span>
+                                </button>
+                            </div>
                             <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
                         </div>
                         <div>
