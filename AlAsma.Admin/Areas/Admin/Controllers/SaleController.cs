@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,33 +21,75 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         private readonly IAuthorService _authorService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDashboardService _dashboardService;
+        private readonly IExportService _exportService;
 
         public SaleController(
             ISaleService saleService,
             IAuthorService authorService,
             IUnitOfWork unitOfWork,
-            IDashboardService dashboardService)
+            IDashboardService dashboardService,
+            IExportService exportService)
         {
             _saleService = saleService;
             _authorService = authorService;
             _unitOfWork = unitOfWork;
             _dashboardService = dashboardService;
+            _exportService = exportService;
         }
 
         // GET: Admin/Sale
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string? q = null, string? field = "book")
         {
             const int pageSize = 10;
-            var (sales, totalCount) = await _saleService.GetAllSalesPaginatedAsync(page, pageSize);
+            var (sales, totalCount, totalRevenue, totalExpenses, totalQuantity) =
+                await _saleService.GetAllSalesPaginatedAsync(page, pageSize, q, field);
 
-            ViewBag.Authors = new SelectList(
-                await _authorService.GetAllAuthorsAsync(), "Id", "Name"
-            );
+            ViewBag.Authors = new SelectList(await _authorService.GetAllAuthorsAsync(), "Id", "Name");
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
             ViewBag.TotalCount = totalCount;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.TotalExpenses = totalExpenses;
+            ViewBag.TotalQuantity = totalQuantity;
+            ViewBag.SearchQuery = q ?? string.Empty;
+            ViewBag.SearchField = field ?? "book";
 
             return View(sales);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkEditExpenses(string? q, string? field, decimal newBasicExpenses)
+        {
+            // Build query matching the current filter (same logic as Index)
+            var query = _unitOfWork.Sales.Query().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var lq = q.Trim().ToLower();
+                query = field switch
+                {
+                    "author" => query.Where(s => _unitOfWork.Authors.Query()
+                        .Where(a => a.Id == s.AuthorId && a.Name.ToLower().Contains(lq)).Any()),
+                    "code" => query.Where(s => _unitOfWork.Authors.Query()
+                        .Where(a => a.Id == s.AuthorId && a.Code.ToLower().Contains(lq)).Any()),
+                    "store" => query.Where(s => s.StoreLocation.ToLower().Contains(lq)),
+                    _ => query.Where(s => s.BookTitle.ToLower().Contains(lq))
+                };
+            }
+
+            var updatedCount = await query.ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.BasicExpenses, newBasicExpenses)
+                .SetProperty(p => p.TotalAmount, p => (p.SalePrice * p.Quantity) - (newBasicExpenses * p.Quantity) < 0 ? 0 : (p.SalePrice * p.Quantity) - (newBasicExpenses * p.Quantity)));
+
+            if (updatedCount == 0)
+            {
+                TempData["Error"] = "لا توجد سجلات مطابقة للفرز الحالي";
+                return RedirectToAction("Index", new { q = q, field = field });
+            }
+
+            TempData["Success"] = $"تم تعديل المصروفات لـ {updatedCount} سجل بنجاح";
+            return RedirectToAction("Index", new { q = q, field = field });
         }
 
         // GET: Admin/Sale/Create
@@ -64,9 +107,21 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Authors = new SelectList(
-                    await _authorService.GetAllAuthorsAsync(), "Id", "Name");
-                var sales = await _saleService.GetAllSalesAsync();
+                const int pageSize = 10;
+                var (sales, totalCount, totalRevenue, totalExpenses, totalQuantity) =
+                    await _saleService.GetAllSalesPaginatedAsync(1, pageSize);
+
+                ViewBag.Authors = new SelectList(await _authorService.GetAllAuthorsAsync(), "Id", "Name");
+                ViewBag.CurrentPage = 1;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+                ViewBag.TotalCount = totalCount;
+                ViewBag.TotalRevenue = totalRevenue;
+                ViewBag.TotalExpenses = totalExpenses;
+                ViewBag.TotalQuantity = totalQuantity;
+                ViewBag.SearchQuery = string.Empty;
+                ViewBag.SearchField = "book";
+
+                TempData["Error"] = "يرجى مراجعة بيانات العملية";
                 return View("Index", sales);
             }
 
@@ -92,20 +147,13 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var sale = await _unitOfWork.Sales.GetByIdAsync(dto.Id);
-            if (sale == null) return NotFound();
-
-            sale.BookTitle = dto.BookTitle;
-            sale.AuthorId = dto.AuthorId;
-            sale.StoreLocation = dto.StoreLocation;
-            sale.SalePrice = dto.SalePrice;
-            sale.Quantity = dto.Quantity;
-            sale.BasicExpenses = dto.BasicExpenses;
-            // Recalculate TotalAmount server-side — NEVER from frontend
-            sale.TotalAmount = Math.Max(0, (dto.SalePrice * dto.Quantity) - (dto.BasicExpenses * dto.Quantity));
-
-            _unitOfWork.Sales.Update(sale);
-            await _unitOfWork.SaveChangesAsync();
+            // Delegate entirely to SaleService — TotalAmount calculated in ONE place (CalculateTotal)
+            var success = await _saleService.UpdateSaleAsync(dto);
+            if (!success)
+            {
+                TempData["Error"] = "لم يتم العثور على العملية";
+                return RedirectToAction(nameof(Index));
+            }
 
             TempData["Success"] = "تم تعديل العملية بنجاح";
             return RedirectToAction(nameof(Index));
@@ -140,9 +188,9 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
 
         // GET: Admin/Sale/ByAuthor/5
         [HttpGet]
-        public async Task<IActionResult> ByAuthor(int authorId)
+        public async Task<IActionResult> ByAuthor(int authorId, int salesPage = 1, int operationsPage = 1)
         {
-            var dashboard = await _dashboardService.GetAuthorDashboardAsync(authorId);
+            var dashboard = await _dashboardService.GetAuthorDashboardAsync(authorId, salesPage, operationsPage);
             if (dashboard == null) return NotFound();
             return View(dashboard);
         }
@@ -152,54 +200,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         public async Task<IActionResult> Export()
         {
             var sales = (await _saleService.GetAllSalesAsync()).ToList();
-
-            var rows = string.Join("", sales.Select(s => $@"
-<tr>
-<td>{s.BookTitle}</td>
-<td>{s.AuthorName}</td>
-<td>{s.SalePrice:N2}</td>
-<td>{s.BasicExpenses:N2}</td>
-<td><strong>{s.TotalAmount:N2}</strong></td>
-<td>{s.Quantity}</td>
-<td>{s.StoreLocation}</td>
-<td dir='ltr'>{s.SaleDate:yyyy/MM/dd HH:mm}</td>
-</tr>"));
-
-            var html = $@"<!DOCTYPE html>
-<html dir='rtl' lang='ar'>
-<head>
-<meta charset='utf-8'>
-<style>
-    body {{ font-family: 'Arial', sans-serif; direction: rtl; margin: 40px; }}
-    h1 {{ text-align: center; color: #064e3b; font-size: 22px; border-bottom: 3px solid #064e3b; padding-bottom: 10px; }}
-    .date {{ text-align: center; color: #666; margin-bottom: 20px; }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
-    th {{ background-color: #064e3b; color: white; padding: 10px 8px; text-align: center; }}
-    td {{ border: 1px solid #ddd; padding: 8px; text-align: center; }}
-    tr:nth-child(even) {{ background-color: #f8f9fa; }}
-    .total {{ font-weight: bold; background-color: #e8f5e9 !important; }}
-</style>
-</head>
-<body>
-<h1>الأسمى للنشر والتوزيع — تقرير المبيعات</h1>
-<p class='date'>تاريخ التقرير: {DateTime.Now:yyyy/MM/dd}</p>
-<table>
-<thead>
-<tr><th>الكتاب</th><th>الكاتب</th><th>السعر</th><th>المصروفات</th><th>المجموع</th><th>الكمية</th><th>المنفذ</th><th>التاريخ</th></tr>
-</thead>
-<tbody>
-{rows}
-<tr class='total'>
-<td colspan='5'>الإجمالي</td>
-<td><strong>{sales.Sum(s => s.TotalAmount):N2} ج.م</strong></td>
-<td><strong>{sales.Sum(s => s.Quantity)}</strong></td>
-<td colspan='2'></td>
-</tr>
-</tbody>
-</table>
-</body>
-</html>";
-
+            var html = _exportService.BuildAllSalesHtml(sales, DateTime.Now);
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);
             return File(bytes, "application/msword",
                 $"AlAsma-Sales-Report-{DateTime.Now:yyyyMMdd}.doc");
@@ -209,114 +210,28 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportWordByAuthor(int authorId)
         {
-            var dashboard = await _dashboardService.GetAuthorDashboardAsync(authorId);
-            if (dashboard == null) return NotFound();
+            var export = await _dashboardService.GetAuthorSalesExportAsync(authorId);
+            if (export == null) return NotFound();
 
-            var html = BuildAuthorExportHtml(dashboard);
+            var html = _exportService.BuildAuthorSalesHtml(export);
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);
             return File(bytes, "application/msword",
-                $"مبيعات-{dashboard.AuthorName}-{DateTime.Now:yyyyMMdd}.doc");
+                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}.doc");
         }
 
         // GET: Admin/Sale/ExportPdfByAuthor
         [HttpGet]
         public async Task<IActionResult> ExportPdfByAuthor(int authorId)
         {
-            var dashboard = await _dashboardService.GetAuthorDashboardAsync(authorId);
-            if (dashboard == null) return NotFound();
+            var export = await _dashboardService.GetAuthorSalesExportAsync(authorId);
+            if (export == null) return NotFound();
 
-            var html = BuildAuthorExportHtml(dashboard);
+            var html = _exportService.BuildAuthorSalesHtml(export);
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);
             return File(bytes, "text/html; charset=utf-8",
-                $"مبيعات-{dashboard.AuthorName}-{DateTime.Now:yyyyMMdd}-print.html");
+                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}-print.html");
         }
 
-        private static string BuildAuthorExportHtml(AuthorDashboardDto d)
-        {
-            var rows = string.Join("", d.RecentSales.Select(s => $@"
-    <tr>
-      <td>{s.BookTitle}</td>
-      <td style='text-align:center'>{s.SalePrice:N2}</td>
-      <td style='text-align:center'>{s.BasicExpenses:N2}</td>
-      <td style='text-align:center;font-weight:bold'>{s.TotalAmount:N2}</td>
-      <td style='text-align:center'>{s.Quantity}</td>
-      <td style='text-align:center'>{s.StoreLocation}</td>
-      <td style='text-align:center;direction:ltr'>{s.SaleDate:yyyy/MM/dd HH:mm}</td>
-    </tr>"));
-
-            var netClass = d.NetProfit >= 0 ? "green" : "red";
-
-            return $@"<!DOCTYPE html>
-<html dir='rtl' lang='ar'>
-<head>
-<meta charset='utf-8'>
-<style>
-  @page {{ margin: 20mm; }}
-  body {{ font-family: Arial, sans-serif; direction: rtl; color: #1e293b; }}
-  .header {{ text-align: center; border-bottom: 3px solid #064e3b; padding-bottom: 12px; margin-bottom: 20px; }}
-  .header h1 {{ color: #064e3b; font-size: 20px; margin: 0 0 4px; }}
-  .header p {{ color: #64748b; font-size: 13px; margin: 0; }}
-  .info-grid {{ display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }}
-  .info-card {{ border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; }}
-  .info-card .label {{ font-size: 11px; color: #94a3b8; margin-bottom: 4px; }}
-  .info-card .value {{ font-size: 16px; font-weight: bold; color: #0f172a; }}
-  .info-card .value.green {{ color: #059669; }}
-  .info-card .value.red {{ color: #dc2626; }}
-  table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }}
-  th {{ background-color: #064e3b; color: white; padding: 9px 8px; text-align: center; font-weight: 600; }}
-  td {{ border: 1px solid #e2e8f0; padding: 8px; }}
-  tr:nth-child(even) {{ background: #f8fafc; }}
-  .total-row {{ background: #ecfdf5 !important; font-weight: bold; }}
-  .footer {{ text-align: center; margin-top: 20px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }}
-</style>
-</head>
-<body>
-<div class='header'>
-  <h1>الأسمى للنشر والتوزيع</h1>
-  <p>تقرير مبيعات المؤلف — {d.AuthorName}</p>
-  <p>تاريخ التقرير: {DateTime.Now:yyyy/MM/dd}</p>
-</div>
-
-<div class='info-grid'>
-  <div class='info-card'>
-    <div class='label'>إجمالي المبيعات</div>
-    <div class='value'>{d.TotalSales:N2} <span style='font-size:11px;font-weight:normal'>ج.م</span></div>
-  </div>
-  <div class='info-card'>
-    <div class='label'>المصاريف الأساسية</div>
-    <div class='value red'>{d.BasicFees:N2} <span style='font-size:11px;font-weight:normal'>ج.م</span></div>
-  </div>
-  <div class='info-card'>
-    <div class='label'>صافي الربح</div>
-    <div class='value {netClass}'>{d.NetProfit:N2} <span style='font-size:11px;font-weight:normal'>ج.م</span></div>
-  </div>
-  <div class='info-card'>
-    <div class='label'>عمليات البيع</div>
-    <div class='value'>{d.SalesCount}</div>
-  </div>
-</div>
-
-<table>
-  <thead>
-    <tr>
-      <th>الكتاب</th><th>السعر</th><th>المصروفات</th>
-      <th>المجموع</th><th>الكمية</th><th>المنفذ</th><th>التاريخ</th>
-    </tr>
-  </thead>
-  <tbody>
-    {rows}
-    <tr class='total-row'>
-      <td colspan='3' style='text-align:center'>الإجمالي</td>
-      <td style='text-align:center'>{d.TotalSales:N2} ج.م</td>
-      <td style='text-align:center'>{d.RecentSales.Sum(s => s.Quantity)}</td>
-      <td colspan='2'></td>
-    </tr>
-  </tbody>
-</table>
-
-<div class='footer'>© {DateTime.Now.Year} جميع الحقوق محفوظة لدار الأسمى للنشر والتوزيع</div>
-</body>
-</html>";
-        }
     }
 }
+

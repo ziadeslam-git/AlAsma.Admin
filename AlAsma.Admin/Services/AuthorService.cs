@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AlAsma.Admin.DTOs.Author;
 using AlAsma.Admin.Interfaces;
 using AlAsma.Admin.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlAsma.Admin.Services
 {
@@ -18,36 +19,77 @@ namespace AlAsma.Admin.Services
 
         public async Task<IEnumerable<AuthorListDto>> GetAllAuthorsAsync()
         {
-            var authors = await _unitOfWork.Authors.GetAllAsync();
-            var allSales = await _unitOfWork.Sales.GetAllAsync();
-            var salesByAuthor = allSales
-                .Where(s => s.AuthorId > 0)
-                .GroupBy(s => s.AuthorId)
-                .ToDictionary(g => (int)g.Key, g => g.Count());
-
-            return authors
+            // DB-side query: filter roles, project with SalesCount subquery
+            // ContractStatus and DaysRemaining are [NotMapped] — computed client-side after materialization
+            var authors = await _unitOfWork.Authors.Query()
                 .Where(a => a.Role != "SuperAdmin" && a.Role != "Admin")
-                .Select(a => new AuthorListDto
+                .Select(a => new
                 {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Code = a.Code,
-                    ContractStart = a.ContractStart,
-                    ContractEnd = a.ContractEnd,
-                    BasicFees = a.BasicFees,
-                    ContractStatus = a.ContractStatus,
-                    DaysRemaining = a.DaysRemaining,
-                    SalesCount = salesByAuthor.GetValueOrDefault(a.Id, 0)
-                }).ToList();
+                    a.Id,
+                    a.Name,
+                    a.Code,
+                    a.ContractStart,
+                    a.ContractEnd,
+                    a.BasicFees,
+                    // EF translates this to a correlated subquery in SQL
+                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id)
+                })
+                .OrderByDescending(a => a.Id)
+                .ToListAsync();
+
+            // Map to DTO with computed [NotMapped] properties (client-side)
+            return authors.Select(a => new AuthorListDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Code = a.Code,
+                ContractStart = a.ContractStart,
+                ContractEnd = a.ContractEnd,
+                BasicFees = a.BasicFees,
+                ContractStatus = ComputeContractStatus(a.ContractEnd),
+                DaysRemaining = ComputeDaysRemaining(a.ContractEnd),
+                SalesCount = a.SalesCount
+            }).ToList();
         }
 
         public async Task<(IEnumerable<AuthorListDto> Authors, int TotalCount)> GetAllAuthorsPaginatedAsync(int page, int pageSize = 10)
         {
-            var all = await GetAllAuthorsAsync();
-            var list = all.ToList();
-            var total = list.Count;
-            var paged = list.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            return (paged, total);
+            var baseQuery = _unitOfWork.Authors.Query()
+                .Where(a => a.Role != "SuperAdmin" && a.Role != "Admin");
+
+            var totalCount = await baseQuery.CountAsync();
+
+            // DB-side pagination with stable sort — no materialization before Skip/Take
+            var authors = await baseQuery
+                .OrderByDescending(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Name,
+                    a.Code,
+                    a.ContractStart,
+                    a.ContractEnd,
+                    a.BasicFees,
+                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id)
+                })
+                .ToListAsync();
+
+            var paged = authors.Select(a => new AuthorListDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Code = a.Code,
+                ContractStart = a.ContractStart,
+                ContractEnd = a.ContractEnd,
+                BasicFees = a.BasicFees,
+                ContractStatus = ComputeContractStatus(a.ContractEnd),
+                DaysRemaining = ComputeDaysRemaining(a.ContractEnd),
+                SalesCount = a.SalesCount
+            }).ToList();
+
+            return (paged, totalCount);
         }
 
         public async Task<AuthorListDto?> GetAuthorByIdAsync(int id)
@@ -128,8 +170,26 @@ namespace AlAsma.Admin.Services
 
         public async Task<bool> IsCodeUniqueAsync(string code)
         {
-            var authors = await _unitOfWork.Authors.GetAllAsync();
-            return !authors.Any(a => a.Code == code);
+            // Server-side check — no full table load
+            var exists = await _unitOfWork.Authors.AnyAsync(a => a.Code == code);
+            return !exists;
+        }
+
+        // ─── Client-side helpers for [NotMapped] computed properties ────
+        private static string ComputeContractStatus(DateTime? contractEnd)
+        {
+            if (!contractEnd.HasValue) return "غير محدد";
+            var days = (contractEnd.Value - DateTime.UtcNow).TotalDays;
+            if (days <= 0) return "منتهي";
+            if (days <= 20) return "ينتهي قريباً";
+            return "نشط";
+        }
+
+        private static int? ComputeDaysRemaining(DateTime? contractEnd)
+        {
+            if (!contractEnd.HasValue) return null;
+            var days = (int)(contractEnd.Value - DateTime.UtcNow).TotalDays;
+            return days < 0 ? 0 : days;
         }
     }
 }

@@ -1,6 +1,10 @@
 @model AuthorDashboardDto
 @{
     ViewData["Title"] = "مبيعاتي";
+    var salesFromRow = Model.RecentSales.Any() ? ((Model.SalesCurrentPage - 1) * 10) + 1 : 0;
+    var salesToRow = Model.RecentSales.Any() ? salesFromRow + Model.RecentSales.Count - 1 : 0;
+    var operationsFromRow = Model.RecentOperations.Any() ? ((Model.OperationsCurrentPage - 1) * 10) + 1 : 0;
+    var operationsToRow = Model.RecentOperations.Any() ? operationsFromRow + Model.RecentOperations.Count - 1 : 0;
 }
 
 <div class="max-w-5xl mx-auto px-4 py-6">
@@ -69,8 +73,8 @@
     </div>
   </div>
 
-  @* Stats Cards — compact 2x2 grid *@
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+  @* Stats Cards — compact 3x2 grid on medium or 6 columns on large *@
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
       <div class="flex items-center justify-between mb-2">
         <div class="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg">
@@ -91,6 +95,17 @@
       </div>
       <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">المصاريف الأساسية</p>
       <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.BasicFees.ToString("N2") <span class="text-xs font-normal text-slate-400">ج.م</span></p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-orange-50 dark:bg-orange-900/30 p-2 rounded-lg">
+          <span class="material-icons-round text-orange-400 text-lg">construction</span>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700 px-1.5 py-0.5 rounded">مخصوم</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">العمليات</p>
+      <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.OperationsExpenses.ToString("N2") <span class="text-xs font-normal text-slate-400">ج.م</span></p>
     </div>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
@@ -118,6 +133,17 @@
       <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">عمليات البيع</p>
       <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.SalesCount</p>
     </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-slate-100 dark:border-slate-700">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-lg">
+          <span class="material-icons-round text-indigo-400 text-lg">engineering</span>
+        </div>
+        <span class="text-xs text-slate-400 bg-slate-50 dark:bg-slate-700 px-1.5 py-0.5 rounded">عدد</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-0.5">عدد العمليات</p>
+      <p class="text-lg font-bold text-slate-900 dark:text-white">@Model.OperationsCount</p>
+    </div>
   </div>
 
   @* Sales Table with Export buttons *@
@@ -125,7 +151,7 @@
     <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-3">
       <div class="flex items-center gap-2">
         <span class="material-icons-round text-slate-500 text-lg">history</span>
-        <h3 class="text-base font-bold text-slate-800 dark:text-white">سجل مبيعاتك</h3>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">سجل عمليات البيع</h3>
       </div>
       <div class="flex items-center gap-2">
         <a asp-action="ExportWord" asp-route-authorId="@Model.AuthorId"
@@ -154,17 +180,17 @@
             </div>
           </div>
           <div class="grid grid-cols-3 gap-2 text-xs">
-            <div class="bg-slate-700/50 rounded-lg p-2 text-center">
-              <p class="text-slate-400 mb-0.5">السعر</p>
-              <p class="font-semibold text-slate-200">@sale.SalePrice.ToString("N0")</p>
+            <div class="bg-sky-50 dark:bg-sky-900/40 rounded-lg p-2 text-center">
+              <p class="text-sky-600 dark:text-sky-400 mb-0.5">السعر</p>
+              <p class="font-semibold text-sky-800 dark:text-sky-200">@sale.SalePrice.ToString("N0")</p>
             </div>
-            <div class="bg-slate-700/50 rounded-lg p-2 text-center">
-              <p class="text-slate-400 mb-0.5">الكمية</p>
-              <p class="font-semibold text-slate-200">@sale.Quantity</p>
+            <div class="bg-violet-50 dark:bg-violet-900/40 rounded-lg p-2 text-center">
+              <p class="text-violet-600 dark:text-violet-400 mb-0.5">الكمية</p>
+              <p class="font-semibold text-violet-800 dark:text-violet-200">@sale.Quantity</p>
             </div>
-            <div class="bg-red-900/30 rounded-lg p-2 text-center">
-              <p class="text-red-400 mb-0.5">المصروفات</p>
-              <p class="font-semibold text-red-300">@sale.BasicExpenses.ToString("N0")</p>
+            <div class="bg-orange-50 dark:bg-orange-900/40 rounded-lg p-2 text-center">
+              <p class="text-orange-600 dark:text-orange-400 mb-0.5">المصروفات</p>
+              <p class="font-semibold text-orange-800 dark:text-orange-200">@sale.BasicExpenses.ToString("N0")</p>
             </div>
           </div>
         </div>
@@ -220,6 +246,256 @@
         </tbody>
       </table>
     </div>
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 flex-wrap gap-3">
+    <span class="text-sm text-slate-500 dark:text-slate-400">
+      عرض @salesFromRow إلي @salesToRow من @Model.SalesCount سجل
+    </span>
+    <div class="flex items-center gap-1">
+      @if (Model.SalesCurrentPage > 1)
+      {
+        <a asp-action="Index" asp-route-salesPage="@(Model.SalesCurrentPage - 1)" asp-route-operationsPage="@Model.OperationsCurrentPage"
+           class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+          <span class="material-icons-round text-sm">chevron_right</span>
+        </a>
+      }
+      else
+      {
+        <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+          <span class="material-icons-round text-sm">chevron_right</span>
+        </span>
+      }
+
+      @{
+        int startPage = Math.Max(1, Model.SalesCurrentPage - 2);
+        int endPage = Math.Min(Model.SalesTotalPages, Model.SalesCurrentPage + 2);
+      }
+
+      @if (startPage > 1)
+      {
+        <a asp-action="Index" asp-route-salesPage="1" asp-route-operationsPage="@Model.OperationsCurrentPage"
+           class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">1</a>
+        @if (startPage > 2)
+        {
+          <span class="px-2 text-slate-400 text-sm">...</span>
+        }
+      }
+
+      @for (int i = startPage; i <= endPage; i++)
+      {
+        @if (i == Model.SalesCurrentPage)
+        {
+          <span class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-medium">@i</span>
+        }
+        else
+        {
+          <a asp-action="Index" asp-route-salesPage="@i" asp-route-operationsPage="@Model.OperationsCurrentPage"
+             class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">@i</a>
+        }
+      }
+
+      @if (endPage < Model.SalesTotalPages)
+      {
+        @if (endPage < Model.SalesTotalPages - 1)
+        {
+          <span class="px-2 text-slate-400 text-sm">...</span>
+        }
+        <a asp-action="Index" asp-route-salesPage="@Model.SalesTotalPages" asp-route-operationsPage="@Model.OperationsCurrentPage"
+           class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">@Model.SalesTotalPages</a>
+      }
+
+      @if (Model.SalesCurrentPage < Model.SalesTotalPages)
+      {
+        <a asp-action="Index" asp-route-salesPage="@(Model.SalesCurrentPage + 1)" asp-route-operationsPage="@Model.OperationsCurrentPage"
+           class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+          <span class="material-icons-round text-sm">chevron_left</span>
+        </a>
+      }
+      else
+      {
+        <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+          <span class="material-icons-round text-sm">chevron_left</span>
+        </span>
+      }
+    </div>
+  </div>
+  </div>
+
+  @* Operations Table *@
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden mt-6">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-icons-round text-slate-500 text-lg">construction</span>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">سجل العمليات الإضافية</h3>
+      </div>
+    </div>
+    
+    <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700">
+      @foreach (var op in Model.RecentOperations)
+      {
+        <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+            <div class="flex items-center justify-between mb-3 gap-3">
+              <div class="flex items-center gap-2 min-w-0 flex-1">
+                <div class="w-9 h-9 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-sm">
+                  @op.OperationName.FirstOrDefault()
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="font-semibold text-slate-900 dark:text-white text-sm">@op.OperationName</p>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-orange-50 dark:bg-orange-900/30 px-2 py-1 text-[11px] font-medium text-orange-700 dark:text-orange-300 max-w-full">
+                      <span class="material-icons-round text-[13px]">menu_book</span>
+                      <span class="truncate max-w-[8rem]">@op.BookTitle</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+              <span class="font-bold text-orange-600 dark:text-orange-400 text-sm">@op.TotalAmount.ToString("N0")</span>
+              <span class="text-xs text-slate-400">@op.OperationDate.ToString("dd/MM/yyyy")</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-50 dark:bg-slate-700/60 rounded-lg p-2">
+              <p class="text-slate-400 mb-0.5">الكتاب</p>
+              <p class="font-medium text-slate-700 dark:text-slate-200">@op.BookTitle</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700/60 rounded-lg p-2">
+              <p class="text-slate-400 mb-0.5">التاريخ</p>
+              <p class="font-medium text-slate-700 dark:text-slate-200" dir="ltr">@op.OperationDate.ToString("dd/MM/yyyy hh:mm tt")</p>
+            </div>
+            <div class="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-2 text-center">
+              <p class="text-orange-600 dark:text-orange-400 mb-0.5">التكلفة</p>
+              <p class="font-semibold text-orange-700 dark:text-orange-300">@op.ExpenseAmount.ToString("N2")</p>
+            </div>
+            <div class="bg-sky-50 dark:bg-sky-900/30 rounded-lg p-2 text-center">
+              <p class="text-sky-600 dark:text-sky-400 mb-0.5">الكمية</p>
+              <p class="font-semibold text-sky-700 dark:text-sky-300">@op.Quantity</p>
+            </div>
+          </div>
+        </div>
+      }
+      @if (!Model.RecentOperations.Any())
+      {
+        <div class="py-12 text-center text-slate-400">
+          <span class="material-icons-round text-4xl block mb-2">inbox</span>
+          <p class="text-sm">لا توجد عمليات بعد</p>
+        </div>
+      }
+    </div>
+    <div class="hidden md:block overflow-x-auto">
+      <table class="w-full text-right border-collapse text-sm">
+        <thead>
+          <tr class="bg-orange-500 text-white">
+            <th class="py-3 px-4 font-semibold text-sm">العملية</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">الكتاب</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">التكلفة</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">الكمية</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">المجموع</th>
+            <th class="py-3 px-4 font-semibold text-sm text-center">التاريخ</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+          @foreach (var op in Model.RecentOperations)
+          {
+            <tr class="hover:bg-orange-50/40 dark:hover:bg-orange-900/10 transition-colors">
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center font-bold text-xs">@op.OperationName.FirstOrDefault()</div>
+                  <span class="font-medium text-slate-800 dark:text-slate-100 text-sm">@op.OperationName</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@op.BookTitle</td>
+              <td class="py-3 px-4 text-center text-slate-400 text-sm">@op.ExpenseAmount.ToString("N2")</td>
+              <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@op.Quantity</td>
+              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@op.TotalAmount.ToString("N2")</td>
+              <td class="py-3 px-4 text-center text-xs text-slate-400" dir="ltr">@op.OperationDate.ToString("dd/MM/yyyy")<br/>@op.OperationDate.ToString("hh:mm tt")</td>
+            </tr>
+          }
+          @if (!Model.RecentOperations.Any())
+          {
+            <tr><td colspan="6" class="py-10 text-center text-slate-400 text-sm">
+              <span class="material-icons-round text-3xl block mb-1">inbox</span>
+              لا توجد عمليات بعد
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (Model.OperationsTotalPages > 1)
+    {
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 flex-wrap gap-3">
+        <span class="text-sm text-slate-500 dark:text-slate-400">
+          عرض @operationsFromRow إلي @operationsToRow من @Model.OperationsCount سجل
+        </span>
+        <div class="flex items-center gap-1">
+          @if (Model.OperationsCurrentPage > 1)
+          {
+            <a asp-action="Index" asp-route-salesPage="@Model.SalesCurrentPage" asp-route-operationsPage="@(Model.OperationsCurrentPage - 1)"
+               class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <span class="material-icons-round text-sm">chevron_right</span>
+            </a>
+          }
+          else
+          {
+            <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+              <span class="material-icons-round text-sm">chevron_right</span>
+            </span>
+          }
+
+          @{
+            int operationsStartPage = Math.Max(1, Model.OperationsCurrentPage - 2);
+            int operationsEndPage = Math.Min(Model.OperationsTotalPages, Model.OperationsCurrentPage + 2);
+          }
+
+          @if (operationsStartPage > 1)
+          {
+            <a asp-action="Index" asp-route-salesPage="@Model.SalesCurrentPage" asp-route-operationsPage="1"
+               class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">1</a>
+            @if (operationsStartPage > 2)
+            {
+              <span class="px-2 text-slate-400 text-sm">...</span>
+            }
+          }
+
+          @for (int i = operationsStartPage; i <= operationsEndPage; i++)
+          {
+            @if (i == Model.OperationsCurrentPage)
+            {
+              <span class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg bg-orange-500 text-white text-sm font-medium">@i</span>
+            }
+            else
+            {
+              <a asp-action="Index" asp-route-salesPage="@Model.SalesCurrentPage" asp-route-operationsPage="@i"
+                 class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">@i</a>
+            }
+          }
+
+          @if (operationsEndPage < Model.OperationsTotalPages)
+          {
+            @if (operationsEndPage < Model.OperationsTotalPages - 1)
+            {
+              <span class="px-2 text-slate-400 text-sm">...</span>
+            }
+            <a asp-action="Index" asp-route-salesPage="@Model.SalesCurrentPage" asp-route-operationsPage="@Model.OperationsTotalPages"
+               class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-colors">@Model.OperationsTotalPages</a>
+          }
+
+          @if (Model.OperationsCurrentPage < Model.OperationsTotalPages)
+          {
+            <a asp-action="Index" asp-route-salesPage="@Model.SalesCurrentPage" asp-route-operationsPage="@(Model.OperationsCurrentPage + 1)"
+               class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <span class="material-icons-round text-sm">chevron_left</span>
+            </a>
+          }
+          else
+          {
+            <span class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+              <span class="material-icons-round text-sm">chevron_left</span>
+            </span>
+          }
+        </div>
+      </div>
+    }
   </div>
 
 </div>

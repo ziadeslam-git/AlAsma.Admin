@@ -15,6 +15,7 @@ namespace AlAsma.Admin.Data
 
         public DbSet<Author> Authors { get; set; } = null!;
         public DbSet<Sale> Sales { get; set; } = null!;
+        public DbSet<Operation> Operations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +43,20 @@ namespace AlAsma.Admin.Data
                 sb.HasOne(s => s.Author)
                   .WithMany(a => a.Sales)
                   .HasForeignKey(s => s.AuthorId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Operation configuration
+            modelBuilder.Entity<Operation>(ob =>
+            {
+                ob.Property(o => o.OperationDate).HasDefaultValueSql("GETUTCDATE()");
+
+                ob.Property(o => o.ExpenseAmount).HasPrecision(18, 2);
+                ob.Property(o => o.TotalAmount).HasPrecision(18, 2);
+
+                ob.HasOne(o => o.Author)
+                  .WithMany()
+                  .HasForeignKey(o => o.AuthorId)
                   .OnDelete(DeleteBehavior.Restrict);
             });
         }

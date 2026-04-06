@@ -1,5 +1,22 @@
 @using System.Security.Claims
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString();
+    
+    string GetActive(string ctrl) 
+    {
+        return currentCtrl == ctrl 
+            ? "text-white font-bold border-white" 
+            : "text-white/80 font-semibold border-transparent hover:border-white hover:text-white";
+    }
+
+    string GetMobileActive(string ctrl)
+    {
+        return currentCtrl == ctrl
+            ? "text-white bg-white/10 font-bold"
+            : "text-white/80 font-medium hover:text-white hover:bg-white/10";
+    }
+}
 
 <header class="bg-primary text-white shadow-md sticky top-0 z-50">
   <div class="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -13,31 +30,35 @@
     </div>
 
     @* Desktop Nav — hidden on mobile *@
-    <nav class="hidden md:flex items-center gap-6 font-semibold text-sm">
+    <nav class="hidden md:flex items-center gap-6 text-sm">
       @if (User.IsInRole("SuperAdmin"))
       {
         <a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">الرئيسية</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Dashboard")">الرئيسية</a>
         <a asp-area="SuperAdmin" asp-controller="AdminManagement" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">إدارة Admins</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("AdminManagement")">إدارة Admins</a>
         <a asp-area="Admin" asp-controller="Author" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المؤلفون</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Author")">المؤلفون</a>
         <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المبيعات</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Sale")">المبيعات</a>
+        <a asp-area="Admin" asp-controller="Operation" asp-action="Index"
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Operation")">العمليات</a>
       }
       @if (User.IsInRole("Admin"))
       {
         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">الرئيسية</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Dashboard")">الرئيسية</a>
         <a asp-area="Admin" asp-controller="Author" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المؤلفون</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Author")">المؤلفون</a>
         <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
-           class="text-white/80 hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-0.5">المبيعات</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Sale")">المبيعات</a>
+        <a asp-area="Admin" asp-controller="Operation" asp-action="Index"
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Operation")">العمليات</a>
       }
       @if (User.IsInRole("Author"))
       {
         <a asp-area="Author" asp-controller="Dashboard" asp-action="Index"
-                   class="text-white/80 hover:text-white transition-colors">Dashboard</a>
+           class="transition-colors border-b-2 pb-0.5 @GetActive("Dashboard")">مبيعاتي</a>
       }
     </nav>
 
@@ -76,42 +97,50 @@
       @if (User.IsInRole("SuperAdmin"))
       {
         <a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Dashboard")">
           <span class="material-icons-round text-base">home</span> الرئيسية
         </a>
         <a asp-area="SuperAdmin" asp-controller="AdminManagement" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("AdminManagement")">
           <span class="material-icons-round text-base">manage_accounts</span> إدارة Admins
         </a>
         <a asp-area="Admin" asp-controller="Author" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Author")">
           <span class="material-icons-round text-base">group</span> المؤلفون
         </a>
         <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Sale")">
           <span class="material-icons-round text-base">receipt_long</span> المبيعات
+        </a>
+        <a asp-area="Admin" asp-controller="Operation" asp-action="Index"
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Operation")">
+          <span class="material-icons-round text-base">point_of_sale</span> العمليات
         </a>
       }
       @if (User.IsInRole("Admin"))
       {
         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Dashboard")">
           <span class="material-icons-round text-base">home</span> الرئيسية
         </a>
         <a asp-area="Admin" asp-controller="Author" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Author")">
           <span class="material-icons-round text-base">group</span> المؤلفون
         </a>
         <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Sale")">
           <span class="material-icons-round text-base">receipt_long</span> المبيعات
+        </a>
+        <a asp-area="Admin" asp-controller="Operation" asp-action="Index"
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Operation")">
+          <span class="material-icons-round text-base">point_of_sale</span> العمليات
         </a>
       }
       @if (User.IsInRole("Author"))
       {
         <a asp-area="Author" asp-controller="Dashboard" asp-action="Index"
-           class="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium">
-                    <span class="material-icons-round text-base">dashboard</span> Dashboard
+           class="flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm @GetMobileActive("Dashboard")">
+          <span class="material-icons-round text-base">receipt_long</span> مبيعاتي
         </a>
       }
 

@@ -8,6 +8,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -43,7 +46,7 @@
             <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-white opacity-5 mix-blend-overlay"></div>
             <div class="w-full flex justify-center mb-8 relative z-10">
                 <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg p-2">
-                    <img src="/images/logo.png?v=2" alt="الأسمى" class="w-full h-full object-contain rounded-full">
+                    <img src="/images/logo.png?v=2" alt="الأسمى" class="w-full h-full object-contain rounded-full" width="128" height="128" decoding="async" loading="lazy">
                 </div>
             </div>
             <div class="relative z-10 space-y-4">
@@ -66,7 +69,8 @@
             <div class="flex flex-col items-center mb-6">
               <img src="/images/logo.png?v=2"
                    alt="الأسمى للنشر والتوزيع"
-                   class="h-20 w-20 object-contain mx-auto mb-3" />
+                   class="h-20 w-20 object-contain mx-auto mb-3"
+                   width="80" height="80" decoding="async" fetchpriority="high" />
               <h1 class="text-xl font-bold text-slate-800">الأسمى للنشر والتوزيع</h1>
               <p class="text-sm text-slate-500 mt-1">نظام إدارة المبيعات</p>
             </div>

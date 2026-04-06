@@ -1,0 +1,469 @@
+@model IEnumerable<AlAsma.Admin.DTOs.Operation.OperationListDto>
+@{
+    ViewData["Title"] = "العمليات";
+    var operations = Model ?? Enumerable.Empty<AlAsma.Admin.DTOs.Operation.OperationListDto>();
+    var authors = ViewBag.Authors as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
+    var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    var totalCount = ViewBag.TotalCount is int tc ? tc : 0;
+    var totalExpenses = ViewBag.TotalExpenses is decimal te ? te : 0m;
+    var totalSales = ViewBag.TotalSales is decimal ts ? ts : 0m;
+    var netProfit = ViewBag.NetProfit is decimal np ? np : 0m;
+    string sq = ViewBag.SearchQuery ?? string.Empty;
+    string sf = ViewBag.SearchField ?? "operation";
+    var fromRow = totalCount == 0 ? 0 : ((currentPage - 1) * 10) + 1;
+    var toRow = Math.Min(currentPage * 10, totalCount);
+}
+
+<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+  <div>
+    <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">لوحة العمليات</h2>
+    <p class="text-slate-500 dark:text-slate-400">متابعة المصروفات التشغيلية واحتساب صافي الأرباح بعد خصمها من إجمالي المبيعات</p>
+  </div>
+  <div class="mt-4 md:mt-0 flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700">
+    <span class="material-icons-round text-slate-400 text-lg">calendar_today</span>
+    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+  </div>
+</div>
+
+@* Stats Cards *@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-10">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
+    <div class="flex justify-between items-start mb-4">
+      <div class="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-xl text-amber-500">
+        <span class="material-icons-round">money_off</span>
+      </div>
+      <span class="text-xs font-semibold text-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg">مصروفات</span>
+    </div>
+    <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي المصاريف</h3>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
+      @totalExpenses.ToString("N2")
+      <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
+    </p>
+    <p class="text-xs text-slate-400 mt-2">يشمل مصروفات الكتب والعمليات التشغيلية</p>
+  </div>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
+    <div class="flex justify-between items-start mb-4">
+      <div class="bg-green-50 dark:bg-green-900/30 p-3 rounded-xl text-green-500">
+        <span class="material-icons-round">payments</span>
+      </div>
+      <span class="text-xs font-semibold text-green-700 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">مبيعات</span>
+    </div>
+    <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي المبيعات</h3>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
+      @totalSales.ToString("N2")
+      <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
+    </p>
+  </div>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
+    <div class="flex justify-between items-start mb-4">
+      <div class="@(netProfit >= 0 ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500" : "bg-red-50 dark:bg-red-900/30 text-red-500") p-3 rounded-xl">
+        <span class="material-icons-round">@(netProfit >= 0 ? "account_balance_wallet" : "warning")</span>
+      </div>
+      <span class="text-xs font-semibold px-2 py-1 rounded-lg @(netProfit >= 0 ? "text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20" : "text-red-700 bg-red-50 dark:bg-red-900/20")">
+        @((netProfit >= 0) ? "موجب" : "سالب")
+      </span>
+    </div>
+    <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">صافي الأرباح</h3>
+    <p class="text-xl sm:text-3xl font-bold @(netProfit >= 0 ? "text-emerald-600" : "text-red-600") flex items-baseline">
+      @netProfit.ToString("N2")
+      <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
+    </p>
+    <p class="text-xs text-slate-400 mt-2">إجمالي المبيعات - إجمالي المصاريف</p>
+  </div>
+</div>
+
+@* Add Operation Form *@
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 lg:p-8 mb-10 border border-slate-200 dark:border-slate-700">
+  <div class="flex items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+    <span class="material-icons-round text-primary ml-2">add_card</span>
+    <h3 class="text-lg font-bold text-slate-800 dark:text-white">تسجيل مصروف جديد</h3>
+  </div>
+  <form asp-action="Create" method="post" class="space-y-6">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">بيان العملية</label>
+        <input name="OperationName" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" placeholder="مثال: شحن، طباعة، تغليف..." type="text" required />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">اسم الكتاب <span class="text-xs text-slate-400 font-normal">(اختياري)</span></label>
+        <input name="BookTitle" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" placeholder="نفقة مرتبطة بكتاب معين" type="text" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">الكاتب <span class="text-xs text-slate-400 font-normal">(اختياري)</span></label>
+        <select name="AuthorId" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+          <option value="">-- نفقة عامة / بدون مؤلف --</option>
+          @foreach (var author in authors)
+          {
+            <option value="@author.Value">@author.Text</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">قيمة المصروف</label>
+        <div class="relative">
+          <input name="ExpenseAmount" id="expenseAmount" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm pl-12 dark:bg-slate-700 dark:border-slate-600 dark:text-white" placeholder="0.00" type="number" step="0.01" min="0" required oninput="calcTotal()" />
+          <span class="absolute left-3 top-2.5 text-slate-400 text-sm">ج.م</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">الكمية</label>
+        <input name="Quantity" id="qty" class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" min="1" type="number" value="1" required oninput="calcTotal()" />
+      </div>
+    </div>
+    <div class="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-700">
+      <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-lg flex items-center gap-2 transition-colors w-full sm:w-auto mb-4 sm:mb-0">
+        <span class="material-icons-round text-sm">save</span> حفظ العملية
+      </button>
+      <div class="bg-slate-50 dark:bg-slate-700 px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center gap-3">
+        <span class="text-slate-500 dark:text-slate-400 font-medium text-sm">المجموع النهائي:</span>
+        <span id="totalDisplay" class="text-xl font-bold text-slate-900 dark:text-white">0.00 <span class="text-sm font-normal text-slate-500">ج.م</span></span>
+      </div>
+    </div>
+  </form>
+</div>
+
+@* Operations Table *@
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+  <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex flex-col gap-4 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-start">
+    <div class="flex items-center justify-center gap-2 lg:justify-self-start">
+      <span class="material-icons-round text-slate-500">history</span>
+      <h3 class="text-lg font-bold text-slate-800 dark:text-white">سجل العمليات</h3>
+    </div>
+    <div class="w-full lg:max-w-2xl lg:justify-self-center">
+      <div class="flex flex-col gap-2">
+      <form method="get" asp-action="Index" class="flex items-center gap-2">
+        <input type="hidden" name="page" value="1" />
+        <input type="hidden" name="field" value="@sf" />
+        <div class="relative flex-grow">
+          <span class="absolute right-3 top-2.5 text-slate-400 material-icons-round text-sm">search</span>
+         <input id="searchInput"
+                 name="q"
+                 value="@sq"
+                 class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full py-2 pr-9 pl-4 text-sm placeholder-slate-400 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                 placeholder="ابحث في سجل العمليات..." />
+        </div>
+        <button type="submit"
+                class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1 whitespace-nowrap">
+          <span class="material-icons-round text-sm">search</span>
+          <span class="hidden sm:inline">بحث</span>
+        </button>
+      </form>
+      <div class="flex flex-wrap gap-1.5">
+        @{
+            var searchFields = new[]
+            {
+                ("operation", "بيان العملية"),
+                ("book", "اسم الكتاب"),
+                ("author", "اسم الكاتب"),
+                ("code", "كود الكاتب")
+            };
+        }
+        @foreach (var (fieldValue, fieldLabel) in searchFields)
+        {
+            var isActive = sf == fieldValue;
+            <a asp-action="Index"
+               asp-route-q="@sq"
+               asp-route-field="@fieldValue"
+               asp-route-page="1"
+               class="@(isActive ? "bg-primary text-white shadow-sm" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600") px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap">
+              @fieldLabel
+            </a>
+        }
+        @if (!string.IsNullOrWhiteSpace(sq))
+        {
+            <a asp-action="Index" asp-route-page="1" class="flex items-center gap-0.5 bg-red-50 dark:bg-red-900/30 text-red-500 px-2.5 py-1.5 rounded-full text-xs font-medium hover:bg-red-100 transition-colors">
+              <span class="material-icons-round text-xs">close</span> مسح
+            </a>
+        }
+      </div>
+      </div>
+    </div>
+    <div class="flex items-center justify-center lg:justify-self-end">
+      <a asp-action="Export" class="flex items-center gap-1 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors shadow-sm">
+        <span class="material-icons-round text-sm">download</span> تصدير Word
+      </a>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto hidden md:block">
+    <table class="w-full text-right border-collapse" id="operationsTable">
+      <thead>
+        <tr class="bg-primary text-white">
+          <th class="py-4 px-4 font-semibold text-sm">بيان العملية</th>
+          <th class="py-4 px-4 font-semibold text-sm">الكتاب</th>
+          <th class="py-4 px-4 font-semibold text-sm">الكاتب</th>
+          <th class="py-4 px-4 font-semibold text-sm">كود الكاتب</th>
+          <th class="py-4 px-4 font-semibold text-sm text-center">المصروف</th>
+          <th class="py-4 px-4 font-semibold text-sm text-center">الكمية</th>
+          <th class="py-4 px-4 font-semibold text-sm text-center">الإجمالي</th>
+          <th class="py-4 px-4 font-semibold text-sm text-center">التاريخ والوقت</th>
+          <th class="py-4 px-4 font-semibold text-sm text-center">إجراءات</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+        @foreach (var operation in operations)
+        {
+          <tr class="hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10 transition-colors">
+            <td class="py-4 px-4 font-medium text-slate-800 dark:text-slate-100">@operation.OperationName</td>
+            <td class="py-4 px-4 text-slate-700 dark:text-slate-300">@operation.BookTitle</td>
+            <td class="py-4 px-4 text-slate-700 dark:text-slate-300">@operation.AuthorName</td>
+            <td class="py-4 px-4">
+              <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-lg text-xs font-mono">@operation.AuthorCode</span>
+            </td>
+            <td class="py-4 px-4 text-center text-slate-700 dark:text-slate-300 text-sm">@operation.ExpenseAmount.ToString("N2")</td>
+            <td class="py-4 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@operation.Quantity</td>
+            <td class="py-4 px-4 text-center font-bold text-red-600 dark:text-red-400">@operation.TotalAmount.ToString("N2")</td>
+            <td class="py-4 px-4 text-center text-xs text-slate-400" dir="ltr">@operation.OperationDate.ToString("dd/MM/yyyy")<br />@operation.OperationDate.ToString("hh:mm tt")</td>
+            <td class="py-4 px-4 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button type="button"
+                        onclick='openEditModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new { id = operation.Id, operationName = operation.OperationName, bookTitle = operation.BookTitle == "نفقة عامة" ? "" : operation.BookTitle, authorId = operation.AuthorId, expenseAmount = operation.ExpenseAmount, quantity = operation.Quantity })))'
+                        class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 p-1.5 rounded-lg transition-colors"
+                        title="تعديل">
+                  <span class="material-icons-round text-sm">edit</span>
+                </button>
+                <form asp-action="Delete" method="post" class="inline" onsubmit="return confirm('هل أنت متأكد من حذف هذه العملية؟');">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@operation.Id" />
+                  <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded-lg transition-colors" title="حذف">
+                    <span class="material-icons-round text-sm">delete</span>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (!operations.Any())
+        {
+          <tr>
+            <td colspan="9" class="py-12 text-center text-slate-400">
+              <span class="material-icons-round text-4xl block mb-2">inbox</span>
+              <p class="text-sm">لا توجد عمليات مضافة حالياً</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  
+  @* Mobile view *@
+  <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700">
+    @foreach (var operation in operations)
+    {
+      <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h4 class="font-bold text-slate-800 dark:text-white text-sm">@operation.OperationName</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">@operation.BookTitle</p>
+            <p class="text-xs text-slate-400 mt-1">@operation.AuthorName • @operation.AuthorCode</p>
+          </div>
+          <div class="text-left">
+            <span class="font-bold text-red-600 dark:text-red-400">@operation.TotalAmount.ToString("N2")</span>
+            <span class="block text-[10px] text-slate-400 mt-0.5" dir="ltr">@operation.OperationDate.ToString("dd/MM/yyyy")</span>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+          <div class="text-xs text-slate-500 dark:text-slate-400 flex gap-4">
+            <span>المصروف: <strong class="text-slate-700 dark:text-slate-200">@operation.ExpenseAmount.ToString("N2")</strong></span>
+            <span>الكمية: <strong class="text-slate-700 dark:text-slate-200">@operation.Quantity</strong></span>
+          </div>
+          <div class="flex gap-1">
+            <button type="button"
+                    onclick='openEditModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new { id = operation.Id, operationName = operation.OperationName, bookTitle = operation.BookTitle == "نفقة عامة" ? "" : operation.BookTitle, authorId = operation.AuthorId, expenseAmount = operation.ExpenseAmount, quantity = operation.Quantity })))'
+                    class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded text-xs font-medium transition-colors">تعديل</button>
+            <form asp-action="Delete" method="post" class="inline" onsubmit="return confirm('حذف؟');">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@operation.Id" />
+              <button type="submit" class="bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 px-3 py-1.5 rounded text-xs font-medium transition-colors">حذف</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+    @if (!operations.Any())
+    {
+      <div class="py-12 text-center text-slate-400">
+        <span class="material-icons-round text-4xl block mb-2">inbox</span>
+        <p class="text-sm">لا توجد عمليات</p>
+      </div>
+    }
+  </div>
+
+  @* Pagination *@
+  @if (totalPages > 1)
+  {
+    <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between flex-wrap gap-3">
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        عرض @fromRow إلى @toRow من @totalCount سجل
+      </p>
+      <div class="flex items-center gap-1">
+        @if (currentPage > 1)
+        {
+          <a asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-q="@sq" asp-route-field="@sf"
+             class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm">
+            السابق
+          </a>
+        }
+        @if (currentPage < totalPages)
+        {
+          <a asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-q="@sq" asp-route-field="@sf"
+             class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors text-sm">
+            التالي
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+</main>
+
+@* Edit Operation Modal *@
+<div id="editModal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEditModal()"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full flex flex-col max-h-[90vh] overflow-hidden transform transition-all">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <span class="material-icons-round text-primary">edit</span> تعديل العملية
+        </h3>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-full p-1 transition-colors">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto">
+        <form asp-action="Edit" method="post" id="editForm" class="space-y-5">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="Id" id="editOperationId" />
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">بيان العملية</label>
+            <input type="text" name="OperationName" id="editOperationName" required
+                   class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">اسم الكتاب (اختياري)</label>
+            <input type="text" name="BookTitle" id="editBookTitle"
+                   class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">الكاتب (اختياري)</label>
+            <select name="AuthorId" id="editAuthorId"
+                    class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+              <option value="">-- نفقة عامة / بدون مؤلف --</option>
+              @foreach (var author in authors)
+              {
+                <option value="@author.Value">@author.Text</option>
+              }
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">المصروف</label>
+                <input type="number" step="0.01" min="0" name="ExpenseAmount" id="editExpenseAmount" required oninput="calcEditTotal()"
+                       class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">الكمية</label>
+                <input type="number" min="1" name="Quantity" id="editQuantity" required oninput="calcEditTotal()"
+                       class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
+              </div>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg flex justify-between items-center border border-slate-200 dark:border-slate-600">
+             <span class="text-sm font-medium text-slate-600 dark:text-slate-300">الإجمالي:</span>
+             <span class="text-lg font-bold text-slate-900 dark:text-white" id="editTotalDisplay">0.00 ج.م</span>
+          </div>
+
+          <div class="pt-2 flex flex-col-reverse sm:flex-row justify-end gap-3">
+            <button type="button" onclick="closeEditModal()"
+                    class="px-5 py-2.5 rounded-lg font-medium text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors w-full sm:w-auto">
+              إلغاء
+            </button>
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-lg font-medium text-white bg-primary hover:bg-primary/90 transition-colors shadow-sm w-full sm:w-auto flex items-center justify-center gap-2">
+              <span class="material-icons-round text-sm">save</span> حفظ التعديلات
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function calcTotal() {
+      const expense = parseFloat(document.getElementById('expenseAmount').value) || 0;
+      const qty = parseInt(document.getElementById('qty').value) || 0;
+      const total = expense * qty;
+      document.getElementById('totalDisplay').innerHTML = total.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' <span class="text-sm font-normal text-slate-500">ج.م</span>';
+    }
+
+    function calcEditTotal() {
+      const expense = parseFloat(document.getElementById('editExpenseAmount').value) || 0;
+      const qty = parseInt(document.getElementById('editQuantity').value) || 0;
+      const total = expense * qty;
+      document.getElementById('editTotalDisplay').innerText = total.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' ج.م';
+    }
+
+    function openEditModal(data) {
+      document.getElementById('editOperationId').value = data.id;
+      document.getElementById('editOperationName').value = data.operationName || '';
+      document.getElementById('editBookTitle').value = data.bookTitle || '';
+      document.getElementById('editAuthorId').value = data.authorId ?? '';
+      document.getElementById('editExpenseAmount').value = data.expenseAmount;
+      document.getElementById('editQuantity').value = data.quantity;
+
+      calcEditTotal();
+      document.getElementById('editModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // ─── Client-side local filtering (current page rows only) ───
+    // Server-side pagination stays intact — this only hides/shows rows on the current page.
+    (function() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(filterCurrentPage, 200);
+        });
+
+        function filterCurrentPage() {
+            const term = searchInput.value.trim().toLowerCase();
+            // Desktop table rows
+            const tableRows = document.querySelectorAll('#operationsTable tbody tr');
+            tableRows.forEach(function(row) {
+                if (!term) { row.style.display = ''; return; }
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+            // Mobile cards
+            const mobileCards = document.querySelectorAll('.md\\:hidden.divide-y > div');
+            mobileCards.forEach(function(card) {
+                if (!term) { card.style.display = ''; return; }
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+    })();
+  </script>
+}

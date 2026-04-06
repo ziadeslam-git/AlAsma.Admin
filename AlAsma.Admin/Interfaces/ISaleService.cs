@@ -7,7 +7,10 @@ namespace AlAsma.Admin.Interfaces
     public interface ISaleService
     {
         Task<IEnumerable<SaleListDto>> GetAllSalesAsync();
-        Task<(IEnumerable<SaleListDto> Sales, int TotalCount)> GetAllSalesPaginatedAsync(int page, int pageSize = 10);
+
+        Task<(IEnumerable<SaleListDto> Sales, int TotalCount, decimal TotalRevenue, decimal TotalExpenses, int TotalQuantity)>
+            GetAllSalesPaginatedAsync(int page, int pageSize = 10, string? q = null, string? searchField = null);
+
         Task<IEnumerable<SaleListDto>> GetSalesByAuthorAsync(int authorId);
         Task<SaleListDto?> GetSaleByIdAsync(int id);
         Task<bool> CreateSaleAsync(SaleCreateDto dto);

@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlAsma.Admin.DTOs.Sale;
 using AlAsma.Admin.Interfaces;
 using AlAsma.Admin.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlAsma.Admin.Services
 {
@@ -27,69 +29,94 @@ namespace AlAsma.Admin.Services
             return Math.Max(0, revenue - totalExpenses);
         }
 
-        public async Task<IEnumerable<SaleListDto>> GetAllSalesAsync()
+        // ─── Shared projection helper ───────────────────────────────────
+        // Builds a server-side left join between Sales and Authors,
+        // projecting directly to SaleListDto. Reused by all read methods.
+        private IQueryable<SaleListDto> BuildSaleProjectionQuery()
         {
-            var sales = await _unitOfWork.Sales.GetAllAsync();
-            var authors = await _unitOfWork.Authors.GetAllAsync();
+            var sales = _unitOfWork.Sales.Query();
+            var authors = _unitOfWork.Authors.Query();
 
-            return sales.Select(s => 
-            {
-                var author = authors.FirstOrDefault(a => a.Id == s.AuthorId);
-                return new SaleListDto
-                {
-                    Id = s.Id,
-                    BookTitle = s.BookTitle,
-                    AuthorId = s.AuthorId ?? 0,
-                    AuthorName = author?.Name ?? "بدون مؤلف",
-                    AuthorCode = author?.Code ?? "—",
-                    SalePrice = s.SalePrice,
-                    BasicExpenses = s.BasicExpenses,
-                    TotalAmount = s.TotalAmount,
-                    Quantity = s.Quantity,
-                    StoreLocation = s.StoreLocation,
-                    SaleDate = s.SaleDate
-                };
-            }).OrderByDescending(s => s.SaleDate).ToList();
+            return from s in sales
+                   join a in authors on s.AuthorId equals a.Id into authorGroup
+                   from a in authorGroup.DefaultIfEmpty()
+                   select new SaleListDto
+                   {
+                       Id = s.Id,
+                       BookTitle = s.BookTitle,
+                       AuthorId = s.AuthorId ?? 0,
+                       AuthorName = a != null ? a.Name : "بدون مؤلف",
+                       AuthorCode = a != null ? a.Code : "—",
+                       SalePrice = s.SalePrice,
+                       BasicExpenses = s.BasicExpenses,
+                       TotalAmount = s.TotalAmount,
+                       Quantity = s.Quantity,
+                       StoreLocation = s.StoreLocation,
+                       SaleDate = s.SaleDate
+                   };
         }
 
-        public async Task<(IEnumerable<SaleListDto> Sales, int TotalCount)> GetAllSalesPaginatedAsync(int page, int pageSize = 10)
+        public async Task<IEnumerable<SaleListDto>> GetAllSalesAsync()
         {
-            var all = await _unitOfWork.Sales.GetAllAsync();
-            var authors = await _unitOfWork.Authors.GetAllAsync();
-            
-            var allSales = all.OrderByDescending(s => s.SaleDate).ToList();
-            var totalCount = allSales.Count;
+            return await BuildSaleProjectionQuery()
+                .OrderByDescending(s => s.SaleDate)
+                .ThenByDescending(s => s.Id)
+                .ToListAsync();
+        }
 
-            var paged = allSales
+        // This method is the SQL-level implementation of pagination/filtering/aggregates.
+        // It intentionally uses the existing repository Query() abstraction and
+        // does NOT require introducing GetQueryable().
+        public async Task<(IEnumerable<SaleListDto> Sales, int TotalCount, decimal TotalRevenue, decimal TotalExpenses, int TotalQuantity)>
+            GetAllSalesPaginatedAsync(int page, int pageSize = 10, string? q = null, string? searchField = null)
+        {
+            // Start from the shared server-side projection (Sales LEFT JOIN Authors → SaleListDto)
+            var query = BuildSaleProjectionQuery();
+
+            // Apply search filter in SQL, not in memory
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var lq = q.Trim().ToLower();
+                query = searchField switch
+                {
+                    "author" => query.Where(s => s.AuthorName.ToLower().Contains(lq)),
+                    "code"   => query.Where(s => s.AuthorCode.ToLower().Contains(lq)),
+                    "store"  => query.Where(s => s.StoreLocation.ToLower().Contains(lq)),
+                    _        => query.Where(s => s.BookTitle.ToLower().Contains(lq))
+                };
+            }
+
+            // COUNT + aggregates in SQL (not in memory)
+            var totalCount = await query.CountAsync();
+
+            // SALES PAGE: TotalRevenue = Net revenue (TotalAmount = SalePrice×Qty − BasicExpenses×Qty)
+            // This is DIFFERENT from Dashboard which uses Gross (SalePrice × Quantity).
+            // Do NOT confuse the two — see DashboardService for gross calculation.
+            var totalRevenue  = await query.SumAsync(s => (decimal?)s.TotalAmount) ?? 0m;
+
+            // TotalExpenses = sum of per-unit expenses × quantity for all filtered sales
+            var totalExpenses = await query.SumAsync(s => (decimal?)(s.BasicExpenses * s.Quantity)) ?? 0m;
+
+            var totalQuantity = await query.SumAsync(s => (int?)s.Quantity) ?? 0;
+
+            // Paginate in SQL — only fetch the rows needed
+            var paged = await query
+                .OrderByDescending(s => s.SaleDate)
+                .ThenByDescending(s => s.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(s => 
-                {
-                    var author = authors.FirstOrDefault(a => a.Id == s.AuthorId);
-                    return new SaleListDto
-                    {
-                        Id = s.Id,
-                        BookTitle = s.BookTitle,
-                        AuthorId = s.AuthorId ?? 0,
-                        AuthorName = author?.Name ?? "بدون مؤلف",
-                        AuthorCode = author?.Code ?? "—",
-                        SalePrice = s.SalePrice,
-                        BasicExpenses = s.BasicExpenses,
-                        TotalAmount = s.TotalAmount,
-                        Quantity = s.Quantity,
-                        StoreLocation = s.StoreLocation,
-                        SaleDate = s.SaleDate
-                    };
-                })
-                .ToList();
+                .ToListAsync();
 
-            return (paged, totalCount);
+            return (paged, totalCount, totalRevenue, totalExpenses, totalQuantity);
         }
 
         public async Task<IEnumerable<SaleListDto>> GetSalesByAuthorAsync(int authorId)
         {
-            var allSales = await GetAllSalesAsync();
-            return allSales.Where(s => s.AuthorId == authorId).ToList();
+            return await BuildSaleProjectionQuery()
+                .Where(s => s.AuthorId == authorId)
+                .OrderByDescending(s => s.SaleDate)
+                .ThenByDescending(s => s.Id)
+                .ToListAsync();
         }
 
         public async Task<SaleListDto?> GetSaleByIdAsync(int id)
@@ -172,17 +199,19 @@ namespace AlAsma.Admin.Services
 
         public async Task<decimal> GetTotalSalesByAuthorAsync(int authorId)
         {
-            var sales = await GetSalesByAuthorAsync(authorId);
-            return sales.Sum(s => s.TotalAmount);
+            // DB aggregate — no row materialization
+            return await _unitOfWork.Sales.Query()
+                .Where(s => s.AuthorId == authorId)
+                .SumAsync(s => (decimal?)s.TotalAmount) ?? 0m;
         }
 
         public async Task<decimal> GetNetProfitByAuthorAsync(int authorId)
         {
             var totalSales = await GetTotalSalesByAuthorAsync(authorId);
             var author = await _unitOfWork.Authors.GetByIdAsync(authorId);
-            
+
             if (author == null) return 0;
-            
+
             return totalSales - author.BasicFees;
         }
     }

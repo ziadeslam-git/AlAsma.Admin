@@ -11,6 +11,7 @@ namespace AlAsma.Admin.Repositories
         private readonly AppDbContext _context;
         private IRepository<Author>? _authors;
         private IRepository<Sale>? _sales;
+        private IRepository<Operation>? _operations;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -20,6 +21,8 @@ namespace AlAsma.Admin.Repositories
         public IRepository<Author> Authors => _authors ??= new GenericRepository<Author>(_context);
 
         public IRepository<Sale> Sales => _sales ??= new GenericRepository<Sale>(_context);
+
+        public IRepository<Operation> Operations => _operations ??= new GenericRepository<Operation>(_context);
 
         public async Task<int> SaveChangesAsync()
         {

@@ -4,7 +4,11 @@ using AlAsma.Admin.DTOs.Sale;
 
 namespace AlAsma.Admin.DTOs.Dashboard
 {
-    public class AuthorDashboardDto
+    /// <summary>
+    /// Export-specific DTO carrying full sales history.
+    /// Must ONLY be used in export actions (Word/PDF) — never in dashboard or normal page rendering.
+    /// </summary>
+    public class AuthorSalesExportDto
     {
         public int AuthorId { get; set; }
         public string AuthorName { get; set; } = string.Empty;
@@ -17,13 +21,17 @@ namespace AlAsma.Admin.DTOs.Dashboard
         public decimal TotalSales { get; set; }
         public decimal NetProfit { get; set; }
         public int SalesCount { get; set; }
-        public int SalesCurrentPage { get; set; }
-        public int SalesTotalPages { get; set; }
         public decimal OperationsExpenses { get; set; }
         public int OperationsCount { get; set; }
-        public int OperationsCurrentPage { get; set; }
-        public int OperationsTotalPages { get; set; }
-        public List<SaleListDto> RecentSales { get; set; } = new();
-        public List<AlAsma.Admin.DTOs.Operation.OperationListDto> RecentOperations { get; set; } = new();
+
+        /// <summary>
+        /// Full sales history — not limited. For export purposes only.
+        /// </summary>
+        public List<SaleListDto> Sales { get; set; } = new();
+        
+        /// <summary>
+        /// Full operations history.
+        /// </summary>
+        public List<AlAsma.Admin.DTOs.Operation.OperationListDto> Operations { get; set; } = new();
     }
 }

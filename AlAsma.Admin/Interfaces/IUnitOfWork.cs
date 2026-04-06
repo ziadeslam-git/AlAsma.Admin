@@ -7,6 +7,7 @@ namespace AlAsma.Admin.Interfaces
     {
         IRepository<Author> Authors { get; }
         IRepository<Sale> Sales { get; }
+        IRepository<Operation> Operations { get; }
         Task<int> SaveChangesAsync();
     }
 }

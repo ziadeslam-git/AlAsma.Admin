@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AlAsma.Admin.Data;
 using AlAsma.Admin.Interfaces;
@@ -44,6 +47,27 @@ namespace AlAsma.Admin.Repositories
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.Set<T>().AnyAsync(e => e.Id == id);
+        }
+
+        // Query() is the canonical IQueryable access method in this project.
+        // It exists specifically to support SQL-side query composition without breaking repository abstraction.
+        public IQueryable<T> Query(bool asNoTracking = true)
+        {
+            return asNoTracking
+                ? _context.Set<T>().AsNoTracking()
+                : _context.Set<T>();
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            return predicate == null
+                ? await _context.Set<T>().CountAsync()
+                : await _context.Set<T>().CountAsync(predicate);
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().AnyAsync(predicate);
         }
     }
 }

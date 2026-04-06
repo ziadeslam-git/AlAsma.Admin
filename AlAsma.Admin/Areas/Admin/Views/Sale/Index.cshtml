@@ -20,7 +20,7 @@
 
 
 @* Stats Cards *@
-<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-10">
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-10">
   <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
     <div class="flex justify-between items-start mb-4">
       <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl text-blue-500">
@@ -31,7 +31,7 @@
       </span>
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي العمليات</h3>
-    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@Model.Count()</p>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@ViewBag.TotalCount</p>
   </div>
   <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
     <div class="flex justify-between items-start mb-4">
@@ -44,7 +44,7 @@
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي المبالغ</h3>
     <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
-      @Model.Sum(s => s.TotalAmount).ToString("N2")
+      @(((decimal)ViewBag.TotalRevenue).ToString("N2"))
       <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
     </p>
   </div>
@@ -56,7 +56,20 @@
       <span class="text-xs font-semibold text-slate-500 bg-slate-50 dark:bg-slate-700 px-2 py-1 rounded-lg">إجمالي</span>
     </div>
     <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">كتب مباعة</h3>
-    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@Model.Sum(s => s.Quantity)</p>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">@ViewBag.TotalQuantity</p>
+  </div>
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 sm:p-6 border border-slate-100 dark:border-slate-700">
+    <div class="flex justify-between items-start mb-4">
+      <div class="bg-red-50 dark:bg-red-900/30 p-3 rounded-xl text-red-500">
+        <span class="material-icons-round">money_off</span>
+      </div>
+      <span class="flex items-center text-xs font-semibold text-red-600 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg">مصروفات</span>
+    </div>
+    <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">إجمالي المصروفات</h3>
+    <p class="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-baseline">
+      @(((decimal)ViewBag.TotalExpenses).ToString("N2"))
+      <span class="text-sm font-normal text-slate-500 mr-1">ج.م</span>
+    </p>
   </div>
 </div>
 
@@ -126,43 +139,75 @@
       <span class="material-icons-round text-slate-500">history</span>
       <h3 class="text-lg font-bold text-slate-800 dark:text-white">أحدث العمليات</h3>
     </div>
-    <!-- Desktop Search Bar -->
-    <div class="hidden md:flex flex-grow max-w-2xl mx-auto w-full">
-      <div class="flex items-center bg-slate-100 dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600 w-full">
+    @{
+        string sq = ViewBag.SearchQuery ?? "";
+        string sf = ViewBag.SearchField ?? "book";
+    }
+    <div class="flex flex-col gap-2 flex-grow max-w-2xl">
+      <form id="searchForm" method="get" asp-action="Index" class="flex items-center gap-2">
+        <input type="hidden" name="page" value="1" />
+        <input type="hidden" name="field" value="@sf" />
         <div class="relative flex-grow">
           <span class="absolute right-3 top-2.5 text-slate-400 material-icons-round text-sm">search</span>
-          <input id="searchInputDesktop" class="w-full bg-transparent border-none focus:ring-0 text-sm py-2 pr-9 pl-4 placeholder-slate-400 dark:text-white" placeholder="بحث..." type="text" oninput="filterTable('Desktop')" />
+          <input id="searchInput"
+                 name="q"
+                 value="@sq"
+                 class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full py-2 pr-9 pl-4 text-sm placeholder-slate-400 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
+                 placeholder="بحث..." />
         </div>
-        <div class="flex bg-slate-200 dark:bg-slate-600 rounded-full p-0.5">
-          <button onclick="setSearchMode('book')" id="btnBookDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-primary text-white shadow-sm">اسم الكتاب</button>
-          <button onclick="setSearchMode('author')" id="btnAuthorDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">اسم الكاتب</button>
-          <button onclick="setSearchMode('code')" id="btnCodeDesktop" class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900">كود الكاتب</button>
-        </div>
+        <button type="submit"
+                class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1 whitespace-nowrap">
+          <span class="material-icons-round text-sm">search</span>
+          <span class="hidden sm:inline">بحث</span>
+        </button>
+      </form>
+      @* Filter type buttons — below the search bar *@
+      <div class="flex flex-wrap gap-1.5">
+        @{
+            var fields = new[]
+            {
+                ("book",   "اسم الكتاب"),
+                ("author", "اسم الكاتب"),
+                ("code",   "كود الكاتب"),
+                ("store",  "المنفذ")
+            };
+        }
+        @foreach (var (fval, flabel) in fields)
+        {
+            var isActive = sf == fval;
+            <a asp-action="Index"
+               asp-route-q="@sq"
+               asp-route-field="@fval"
+               asp-route-page="1"
+               class="@(isActive ? "bg-primary text-white shadow-sm" : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600")
+                      px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap">
+                @flabel
+            </a>
+        }
+        @if (!string.IsNullOrWhiteSpace(sq))
+        {
+            <a asp-action="Index" asp-route-page="1"
+               class="flex items-center gap-0.5 bg-red-50 dark:bg-red-900/30 text-red-500 px-2.5 py-1.5 rounded-full text-xs font-medium hover:bg-red-100 transition-colors">
+                <span class="material-icons-round text-xs">close</span> مسح
+            </a>
+        }
       </div>
     </div>
-
-    <!-- Mobile Search Bar -->
-    <div class="md:hidden flex flex-grow w-full mt-4 w-full">
-      <div class="flex flex-col bg-slate-100 dark:bg-slate-700 rounded-xl p-1 border border-slate-200 dark:border-slate-600 gap-2 w-full">
-        <div class="relative w-full">
-          <span class="absolute right-3 top-2 text-slate-400 material-icons-round text-sm">search</span>
-          <input id="searchInputMobile" class="w-full bg-transparent border-none focus:ring-0 text-sm py-1.5 pr-9 pl-4 placeholder-slate-400 dark:text-white" placeholder="بحث..." type="text" oninput="filterTable('Mobile')" />
-        </div>
-        <div class="flex bg-slate-200 dark:bg-slate-600 rounded-lg p-0.5 w-full justify-between">
-          <button onclick="setSearchMode('book')" id="btnBookMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors bg-primary text-white shadow-sm flex-1">اسم الكتاب</button>
-          <button onclick="setSearchMode('author')" id="btnAuthorMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1">اسم الكاتب</button>
-          <button onclick="setSearchMode('code')" id="btnCodeMobile" class="whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1">كود الكاتب</button>
-        </div>
-      </div>
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="openBulkEditModal()"
+        class="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors shadow-sm">
+        <span class="material-icons-round text-sm">edit_note</span>
+        <span class="hidden sm:inline">تعديل المصروفات</span>
+      </button>
+      <a asp-action="Export" class="flex items-center gap-1 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors shadow-sm">
+        <span class="material-icons-round text-sm">download</span> تصدير
+      </a>
     </div>
-    <a asp-action="Export" class="flex items-center gap-1 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors">
-      <span class="material-icons-round text-sm">download</span> تصدير
-    </a>
   </div>
   <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700" id="salesMobileList">
     @foreach (var sale in Model)
     {
-      <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group" data-book="@sale.BookTitle.ToLower()" data-author="@sale.AuthorName.ToLower()" data-code="@sale.AuthorCode.ToLower()">
+      <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
             <div class="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">
@@ -200,9 +245,9 @@
             <p class="text-slate-400 mb-0.5">الكمية</p>
             <p class="font-semibold text-slate-700 dark:text-slate-300">@sale.Quantity</p>
           </div>
-          <div class="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-2 text-center">
-            <p class="text-emerald-600 dark:text-emerald-400 mb-0.5">المجموع</p>
-            <p class="font-bold text-emerald-700 dark:text-emerald-300">@sale.TotalAmount.ToString("N0")</p>
+          <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-2 text-center">
+            <p class="text-red-600 dark:text-red-400 mb-0.5">المجموع</p>
+            <p class="font-bold text-red-700 dark:text-red-300">@sale.TotalAmount.ToString("N0")</p>
           </div>
         </div>
         <div class="flex items-center justify-between mt-2 text-xs text-slate-400">
@@ -240,7 +285,7 @@
         @foreach (var sale in Model)
         {
           var color = colors[ci++ % colors.Length];
-          <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors group" data-book="@sale.BookTitle.ToLower()" data-author="@sale.AuthorName.ToLower()" data-code="@sale.AuthorCode.ToLower()">
+          <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors group">
             <td class="py-4 px-6">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg @color text-white flex items-center justify-center font-bold text-xs">@sale.BookTitle.FirstOrDefault()</div>
@@ -251,7 +296,7 @@
             <td class="py-4 px-4"><span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-lg text-xs font-mono">@sale.AuthorCode</span></td>
             <td class="py-4 px-4 text-center font-medium dark:text-slate-200">@sale.SalePrice.ToString("N2")</td>
             <td class="py-4 px-4 text-center text-slate-500 dark:text-slate-400">@sale.BasicExpenses.ToString("N2")</td>
-            <td class="py-4 px-4 text-center font-bold text-slate-900 dark:text-white">@sale.TotalAmount.ToString("N2")</td>
+            <td class="py-4 px-4 text-center font-bold text-red-600 dark:text-red-400">@sale.TotalAmount.ToString("N2")</td>
             <td class="py-4 px-4 text-center dark:text-slate-200">@sale.Quantity</td>
             <td class="py-4 px-4 text-center text-slate-600 dark:text-slate-300">@sale.StoreLocation</td>
             <td class="py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM/yyyy")<br/>@sale.SaleDate.ToString("hh:mm tt")</td>
@@ -291,6 +336,8 @@
       int currentPage = ViewBag.CurrentPage;
       int totalPages = ViewBag.TotalPages;
       int totalCount = ViewBag.TotalCount;
+      string psq = ViewBag.SearchQuery ?? "";
+      string psf = ViewBag.SearchField ?? "book";
   }
 
   <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50 flex-wrap gap-3">
@@ -302,7 +349,7 @@
       @* Previous *@
       @if (currentPage > 1)
       {
-        <a asp-action="Index" asp-route-page="@(currentPage - 1)"
+        <a asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-q="@psq" asp-route-field="@psf"
            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
           <span class="material-icons-round text-sm">chevron_right</span>
         </a>
@@ -322,7 +369,7 @@
 
       @if (startPage > 1)
       {
-        <a asp-action="Index" asp-route-page="1"
+        <a asp-action="Index" asp-route-page="1" asp-route-q="@psq" asp-route-field="@psf"
            class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">1</a>
         @if (startPage > 2)
         {
@@ -338,7 +385,7 @@
         }
         else
         {
-          <a asp-action="Index" asp-route-page="@i"
+          <a asp-action="Index" asp-route-page="@i" asp-route-q="@psq" asp-route-field="@psf"
              class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@i</a>
         }
       }
@@ -349,14 +396,14 @@
         {
           <span class="px-2 text-slate-400 text-sm">...</span>
         }
-        <a asp-action="Index" asp-route-page="@totalPages"
+        <a asp-action="Index" asp-route-page="@totalPages" asp-route-q="@psq" asp-route-field="@psf"
            class="w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">@totalPages</a>
       }
 
       @* Next *@
       @if (currentPage < totalPages)
       {
-        <a asp-action="Index" asp-route-page="@(currentPage + 1)"
+        <a asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-q="@psq" asp-route-field="@psf"
            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
           <span class="material-icons-round text-sm">chevron_left</span>
         </a>
@@ -426,6 +473,41 @@
   </div>
 </div>
 
+<!-- Bulk Edit Modal -->
+<div id="bulkEditModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div class="bg-amber-50 dark:bg-amber-900/20 px-6 py-4 border-b border-amber-100 dark:border-amber-800/30 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+         <span class="material-icons-round text-amber-500">edit_note</span>
+         <h3 class="text-sm font-bold text-amber-700 dark:text-amber-400">تعديل المصروفات</h3>
+      </div>
+      <button onclick="closeBulkEditModal()" class="text-amber-400 hover:text-amber-600"><span class="material-icons-round text-sm">close</span></button>
+    </div>
+    <form id="bulkExpensesForm" asp-action="BulkEditExpenses" method="post" class="p-6">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="q" value="@sq" />
+      <input type="hidden" name="field" value="@sf" />
+
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+        سيتم تعديل <span class="font-bold text-slate-800 dark:text-slate-200">@ViewBag.TotalCount</span> سجل يطابق الفرز الحالي.
+      </p>
+
+      <div class="mb-5">
+        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">المصروفات الجديدة (للنسخة)</label>
+        <input type="number" name="newBasicExpenses" step="0.01" min="0" required
+               class="w-full text-sm rounded-lg border-slate-300 focus:border-amber-500 focus:ring-amber-500 dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+         <button type="button" onclick="closeBulkEditModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 dark:text-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600">إلغاء</button>
+         <button type="submit" class="px-4 py-2 rounded-lg text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 flex items-center gap-1">
+           <span class="material-icons-round text-[14px]">save</span> تطبيق التعديل
+         </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 </main>
 
 @section Scripts {
@@ -439,50 +521,14 @@ function calcTotal() {
     document.getElementById('totalDisplay').innerHTML = t.toFixed(2) + ' <span class="text-sm font-normal text-slate-500">ج.م</span>';
 }
 
-// Search
-let searchMode = 'book';
-function setSearchMode(mode) {
-    searchMode = mode;
-    ['book','author','code'].forEach(m => {
-        const btnD = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1) + 'Desktop');
-        if(btnD) btnD.className = m === mode
-            ? 'px-4 py-1.5 rounded-full text-sm font-medium transition-colors bg-primary text-white shadow-sm'
-            : 'px-4 py-1.5 rounded-full text-sm font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900';
-            
-        const btnM = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1) + 'Mobile');
-        if(btnM) btnM.className = m === mode
-            ? 'whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors bg-primary text-white shadow-sm flex-1'
-            : 'whitespace-nowrap px-2 py-1.5 rounded-md text-xs font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 flex-1';
-    });
-    filterTable('Sync');
+// Bulk Edit Modal — sends current filter (q+field), no saleIds needed
+function openBulkEditModal() {
+    document.getElementById('bulkEditModal').classList.remove('hidden');
 }
-function filterTable(source) {
-    const inputD = document.getElementById('searchInputDesktop');
-    const inputM = document.getElementById('searchInputMobile');
-    
-    let q = '';
-    if (source === 'Desktop' && inputD) {
-        q = inputD.value;
-        if(inputM) inputM.value = q;
-    } else if (source === 'Mobile' && inputM) {
-        q = inputM.value;
-        if(inputD) inputD.value = q;
-    } else {
-        q = window.innerWidth >= 768 && inputD ? inputD.value : (inputM ? inputM.value : '');
-    }
-    
-    q = q.toLowerCase();
-    
-    document.querySelectorAll('#salesTableBody tr').forEach(row => {
-        const val = row.dataset[searchMode] || '';
-        row.style.display = val.includes(q) ? '' : 'none';
-    });
-
-    document.querySelectorAll('#salesMobileList > div.group').forEach(row => {
-        const val = row.dataset[searchMode] || '';
-        row.style.display = val.includes(q) ? '' : 'none';
-    });
-}
+function closeBulkEditModal() { document.getElementById('bulkEditModal').classList.add('hidden'); }
+document.getElementById('bulkEditModal').addEventListener('click', function(e) {
+    if(e.target === this) closeBulkEditModal();
+});
 
 // Edit modal
 function editFromRow(btn) {
@@ -501,5 +547,39 @@ function closeEditModal() {
 document.getElementById('editModal').addEventListener('click', function(e) {
     if(e.target === this) closeEditModal();
 });
+
+// ─── Server-side Live Search ───
+(function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchForm = document.getElementById('searchForm');
+    if (!searchInput || !searchForm) return;
+
+    // Focus input and set cursor to end on load if search is active
+    if (searchInput.value.length > 0) {
+        searchInput.focus();
+        const val = searchInput.value;
+        searchInput.value = '';
+        searchInput.value = val;
+    }
+
+    let debounceTimer;
+    let lastQuery = searchInput.value.trim();
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const currentQuery = searchInput.value.trim();
+            if (currentQuery !== lastQuery) {
+                if (currentQuery.length >= 2 || currentQuery.length === 0) {
+                    // Reset to page 1 on new search
+                    const pageInput = searchForm.querySelector('input[name="page"]');
+                    if(pageInput) pageInput.value = "1";
+                    
+                    searchForm.submit();
+                }
+            }
+        }, 400); // 400ms debounce
+    });
+})();
 </script>
 }
