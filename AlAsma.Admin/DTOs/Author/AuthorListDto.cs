@@ -14,5 +14,6 @@ namespace AlAsma.Admin.DTOs.Author
         public string ContractStatus { get; set; } = string.Empty;
         public int? DaysRemaining { get; set; }
         public int SalesCount { get; set; }
+        public int OperationsCount { get; set; }
     }
 }

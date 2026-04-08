@@ -210,8 +210,8 @@
       <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">
-              @sale.BookTitle.FirstOrDefault()
+            <div class="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 flex items-center justify-center">
+              <span class="material-icons-round text-[17px] leading-none">auto_stories</span>
             </div>
             <div>
               <p class="font-semibold text-slate-900 dark:text-white text-sm">@sale.BookTitle</p>
@@ -281,14 +281,14 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100 dark:divide-slate-700" id="salesTableBody">
-        @{var colors = new[]{"bg-pink-500","bg-purple-500","bg-yellow-500","bg-green-500","bg-blue-500","bg-red-500"}; int ci=0;}
         @foreach (var sale in Model)
         {
-          var color = colors[ci++ % colors.Length];
           <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 transition-colors group">
             <td class="py-4 px-6">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg @color text-white flex items-center justify-center font-bold text-xs">@sale.BookTitle.FirstOrDefault()</div>
+                <div class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 flex items-center justify-center">
+                  <span class="material-icons-round text-[15px] leading-none">auto_stories</span>
+                </div>
                 <span class="font-medium text-slate-900 dark:text-white">@sale.BookTitle</span>
               </div>
             </td>

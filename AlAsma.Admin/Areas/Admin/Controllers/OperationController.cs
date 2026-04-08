@@ -72,6 +72,22 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var operation = await _operationService.GetOperationByIdAsync(id);
+                return View(operation);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load delete confirmation for operation {OperationId}", id);
+                TempData["Error"] = "تعذر تحميل بيانات العملية المطلوبة للحذف";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OperationCreateDto model)
@@ -128,9 +144,9 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {

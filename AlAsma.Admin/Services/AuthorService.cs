@@ -32,7 +32,8 @@ namespace AlAsma.Admin.Services
                     a.ContractEnd,
                     a.BasicFees,
                     // EF translates this to a correlated subquery in SQL
-                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id)
+                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id),
+                    OperationsCount = _unitOfWork.Operations.Query().Count(o => o.AuthorId == a.Id)
                 })
                 .OrderByDescending(a => a.Id)
                 .ToListAsync();
@@ -48,7 +49,8 @@ namespace AlAsma.Admin.Services
                 BasicFees = a.BasicFees,
                 ContractStatus = ComputeContractStatus(a.ContractEnd),
                 DaysRemaining = ComputeDaysRemaining(a.ContractEnd),
-                SalesCount = a.SalesCount
+                SalesCount = a.SalesCount,
+                OperationsCount = a.OperationsCount
             }).ToList();
         }
 
@@ -72,7 +74,8 @@ namespace AlAsma.Admin.Services
                     a.ContractStart,
                     a.ContractEnd,
                     a.BasicFees,
-                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id)
+                    SalesCount = _unitOfWork.Sales.Query().Count(s => s.AuthorId == a.Id),
+                    OperationsCount = _unitOfWork.Operations.Query().Count(o => o.AuthorId == a.Id)
                 })
                 .ToListAsync();
 
@@ -86,7 +89,8 @@ namespace AlAsma.Admin.Services
                 BasicFees = a.BasicFees,
                 ContractStatus = ComputeContractStatus(a.ContractEnd),
                 DaysRemaining = ComputeDaysRemaining(a.ContractEnd),
-                SalesCount = a.SalesCount
+                SalesCount = a.SalesCount,
+                OperationsCount = a.OperationsCount
             }).ToList();
 
             return (paged, totalCount);

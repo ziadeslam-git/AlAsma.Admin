@@ -92,20 +92,31 @@ namespace AlAsma.Admin.Services
             return (paged, totalCount, totalExpenses, totalGrossSales, netProfit);
         }
 
-        public async Task<OperationCreateDto> GetOperationByIdAsync(int id)
+        public async Task<OperationListDto> GetOperationByIdAsync(int id)
         {
-            var op = await _uow.Operations.GetByIdAsync(id);
-            if (op == null) throw new Exception("العملية غير موجودة");
+            var operation = await (
+                from op in _uow.Operations.Query()
+                join author in _uow.Authors.Query() on op.AuthorId equals author.Id into authorGroup
+                from author in authorGroup.DefaultIfEmpty()
+                where op.Id == id
+                select new OperationListDto
+                {
+                    Id = op.Id,
+                    AuthorId = op.AuthorId,
+                    BookTitle = string.IsNullOrWhiteSpace(op.BookTitle) ? "نفقة عامة" : op.BookTitle,
+                    OperationName = op.OperationName,
+                    AuthorName = author != null ? author.Name : "بدون مؤلف",
+                    AuthorCode = author != null ? author.Code : "—",
+                    ExpenseAmount = op.ExpenseAmount,
+                    Quantity = op.Quantity,
+                    TotalAmount = op.TotalAmount,
+                    OperationDate = op.OperationDate
+                })
+                .FirstOrDefaultAsync();
 
-            return new OperationCreateDto
-            {
-                Id = op.Id,
-                BookTitle = op.BookTitle,
-                AuthorId = op.AuthorId,
-                OperationName = op.OperationName,
-                ExpenseAmount = op.ExpenseAmount,
-                Quantity = op.Quantity
-            };
+            if (operation == null) throw new Exception("العملية غير موجودة");
+
+            return operation;
         }
 
         public async Task CreateOperationAsync(OperationCreateDto dto)

@@ -42,8 +42,8 @@
                 <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
-                                @(author.Name?.FirstOrDefault() ?? '؟')
+                            <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <span class="material-icons-round text-[18px] leading-none">person</span>
                             </div>
                             <div>
                                 <p class="font-bold text-slate-900 dark:text-white">@author.Name</p>
@@ -93,6 +93,10 @@
                             <p class="font-medium text-slate-700 dark:text-slate-300">@author.SalesCount</p>
                         </div>
                         <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+                            <p class="text-slate-400 mb-0.5">العمليات</p>
+                            <p class="font-medium text-slate-700 dark:text-slate-300">@author.OperationsCount</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
                             <p class="text-slate-400 mb-0.5">أساسية</p>
                             <p class="font-medium text-slate-700 dark:text-slate-300">@author.BasicFees.ToString("N0")</p>
                         </div>
@@ -119,19 +123,15 @@
                         <th class="py-4 px-4 font-semibold text-center">الحالة</th>
                         <th class="py-4 px-4 font-semibold text-center">المتبقي</th>
                         <th class="py-4 px-4 font-semibold text-center">المبيعات</th>
+                        <th class="py-4 px-4 font-semibold text-center">العمليات</th>
                         <th class="py-4 px-6 font-semibold text-center">إدارة</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm divide-y divide-slate-100 dark:divide-slate-800">
-                    @{
-                        var colors = new[] { "bg-blue-500", "bg-green-500", "bg-purple-500", "bg-pink-500", "bg-yellow-500", "bg-red-500", "bg-indigo-500" };
-                        int idx = 0;
-                    }
+                    @{ int idx = 0; }
                     @foreach (var author in Model)
                     {
-                        var color = colors[idx % colors.Length];
                         idx++;
-                        var firstChar = author.Name?.FirstOrDefault() ?? '؟';
                         string badgeColor = author.ContractStatus switch
                         {
                             "نشط" => "bg-green-100 text-green-700",
@@ -143,8 +143,8 @@
                         <tr class="row-hover @(idx % 2 == 0 ? "bg-slate-50/50 dark:bg-slate-800/20" : "bg-surface-light dark:bg-surface-dark")">
                             <td class="py-4 px-6">
                                 <div class="flex items-center space-x-3 space-x-reverse">
-                                    <div class="w-8 h-8 rounded @color text-white flex items-center justify-center font-bold text-xs">
-                                        @firstChar
+                                    <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                        <span class="material-icons-round text-[16px] leading-none">person</span>
                                     </div>
                                     <span class="font-bold text-slate-900 dark:text-slate-100">@author.Name</span>
                                 </div>
@@ -172,6 +172,7 @@
                                 }
                             </td>
                             <td class="py-4 px-4 text-center text-slate-700 dark:text-slate-300">@author.SalesCount</td>
+                            <td class="py-4 px-4 text-center text-slate-700 dark:text-slate-300">@author.OperationsCount</td>
                             <td class="py-4 px-6 text-center">
                                 <div class="flex items-center justify-center space-x-2 space-x-reverse">
                                     @if (User.IsInRole("SuperAdmin"))
@@ -200,7 +201,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="8" class="text-center text-slate-400 py-12">
+                            <td colspan="9" class="text-center text-slate-400 py-12">
                                 <span class="material-icons-round text-4xl block mb-2">group_off</span>
                                 لا يوجد مؤلفين مسجلين حالياً
                             </td>
