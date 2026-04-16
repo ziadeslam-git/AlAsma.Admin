@@ -175,7 +175,7 @@
               </div>
             </div>
             <div class="flex flex-col items-end">
-              <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">@((sale.SalePrice * sale.Quantity).ToString("N0"))</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">@sale.TotalAmount.ToString("N0")</span>
               <span class="text-xs text-slate-400">@sale.SaleDate.ToString("dd/MM/yyyy")</span>
             </div>
           </div>
@@ -230,7 +230,7 @@
               </td>
               <td class="py-3 px-4 text-center text-slate-700 dark:text-slate-300 text-sm">@sale.SalePrice.ToString("N2")</td>
               <td class="py-3 px-4 text-center text-slate-400 text-sm">@sale.BasicExpenses.ToString("N2")</td>
-              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@((sale.SalePrice * sale.Quantity).ToString("N2"))</td>
+              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@sale.TotalAmount.ToString("N2")</td>
               <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.Quantity</td>
               <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.StoreLocation</td>
               <td class="py-3 px-4 text-center text-xs text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM/yyyy")<br/>@sale.SaleDate.ToString("hh:mm tt")</td>
