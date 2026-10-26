@@ -19,10 +19,17 @@
 </head>
 <body>
     <div class="auth">
-        <section class="auth__brand" aria-hidden="false">
+        <section class="auth__brand">
             <img class="auth__brand-mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
-            <img class="auth__lockup" src="~/images/brand/asma-lockup-cream.svg" alt="شعار دار الأسمى للنشر والتوزيع" />
-            <p class="auth__slogan">نقطة.. فكرة.. وأثر لا يزول!</p>
+            <div class="auth__brand-inner">
+                <img class="auth__lockup" src="~/images/brand/asma-lockup-cream.svg" alt="شعار دار الأسمى للنشر والتوزيع" />
+                <p class="auth__slogan">نقطة.. فكرة.. وأثر لا يزول!</p>
+                <ul class="auth__features">
+                    <li>@Icon.Svg("trending-up", 22)<span>تابع مبيعاتك وأرباحك لحظة بلحظة</span></li>
+                    <li>@Icon.Svg("file-text", 22)<span>عقودك وتقاريرك في مكان واحد</span></li>
+                    <li>@Icon.Svg("download", 22)<span>تصدير PDF وWord بضغطة واحدة</span></li>
+                </ul>
+            </div>
         </section>
 
         <section class="auth__panel">

@@ -13,7 +13,8 @@ namespace AlAsma.Admin.UI
         string Tone = "",          // "", "ok", "bad"
         bool Hero = false,
         string? Tip = null,
-        string? Breakdown = null);
+        string? Breakdown = null,
+        string? IconName = null);
 
     /// <summary>Data for the shared pagination partial (_Pagination).</summary>
     public sealed record PagerModel(int Current, int TotalPages, int TotalCount, int PageSize, Func<int, string?> UrlFor);

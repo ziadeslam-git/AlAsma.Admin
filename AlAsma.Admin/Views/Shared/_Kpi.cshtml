@@ -7,6 +7,10 @@
     {
         <img class="kpi__mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
     }
+    @if (!string.IsNullOrEmpty(Model.IconName))
+    {
+        <span class="kpi__icon" aria-hidden="true">@Icon.Svg(Model.IconName, 22)</span>
+    }
     <span class="kpi__label">
         @Model.Label
         @if (!string.IsNullOrEmpty(Model.Tip))

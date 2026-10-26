@@ -42,10 +42,10 @@
 </header>
 
 <section class="kpi-grid" aria-label="مؤشرات المبيعات">
-    <partial name="_Kpi" model='new KpiModel("إجمالي العمليات", totalCount.ToString(), Note: filtered ? "حسب البحث الحالي" : "عملية بيع")' />
-    <partial name="_Kpi" model='new KpiModel("إجمالي المبالغ (صافي)", Format.Money(totalRevenue), "ج.م", "بعد خصم مصروفات النسخ", Tip: "الصافي: بعد خصم المصروفات. إيراد لوحة الإدارة خام قبل الخصم.")' />
-    <partial name="_Kpi" model='new KpiModel("كتب مباعة", totalQuantity.ToString("N0"), Note: "نسخة")' />
-    <partial name="_Kpi" model='new KpiModel("إجمالي المصروفات", Format.Money(totalExpenses), "ج.م", "مصروف النسخة × الكمية")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي العمليات", totalCount.ToString(), Note: filtered ? "حسب البحث الحالي" : "عملية بيع", IconName: "receipt")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي المبالغ (صافي)", Format.Money(totalRevenue), "ج.م", "بعد خصم مصروفات النسخ", Tip: "الصافي: بعد خصم المصروفات. إيراد لوحة الإدارة خام قبل الخصم.", IconName: "wallet")' />
+    <partial name="_Kpi" model='new KpiModel("كتب مباعة", totalQuantity.ToString("N0"), Note: "نسخة", IconName: "book")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي المصروفات", Format.Money(totalExpenses), "ج.م", "مصروف النسخة × الكمية", IconName: "tag")' />
 </section>
 
 <section class="card">

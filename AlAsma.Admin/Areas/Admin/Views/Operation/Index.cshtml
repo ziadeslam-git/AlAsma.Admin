@@ -40,13 +40,14 @@
 <section class="kpi-grid kpi-grid--hero" aria-label="مؤشرات العمليات">
     <div class="kpi kpi--hero@(netProfit < 0 ? " kpi--loss" : "")">
         <img class="kpi__mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+        <span class="kpi__icon" aria-hidden="true">@Icon.Svg("trending-up", 22)</span>
         <span class="kpi__label">@(netProfit < 0 ? "صافي الخسارة" : "صافي الأرباح")<span class="tip" title="إجمالي المبيعات − (مصاريف العمليات + مصروفات المبيعات)" tabindex="0">i</span></span>
         <b class="kpi__value num">@Format.Money(netProfit)<span class="cur">ج.م</span></b>
         <span class="kpi__note">المبيعات الخام ناقص كل المصاريف</span>
     </div>
-    <partial name="_Kpi" model='new KpiModel("إجمالي المصاريف", Format.Money(totalExpenses), "ج.م", "عمليات + مصروفات المبيعات")' />
-    <partial name="_Kpi" model='new KpiModel("إجمالي المبيعات (خام)", Format.Money(totalSales), "ج.م", "قبل خصم المصروفات", Tip: "الإيراد الخام: قبل خصم المصروفات")' />
-    <partial name="_Kpi" model='new KpiModel("عدد العمليات", totalCount.ToString(), Note: filtered ? "حسب البحث الحالي" : "عملية مسجلة")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي المصاريف", Format.Money(totalExpenses), "ج.م", "عمليات + مصروفات المبيعات", IconName: "wallet")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي المبيعات (خام)", Format.Money(totalSales), "ج.م", "قبل خصم المصروفات", Tip: "الإيراد الخام: قبل خصم المصروفات", IconName: "trending-up")' />
+    <partial name="_Kpi" model='new KpiModel("عدد العمليات", totalCount.ToString(), Note: filtered ? "حسب البحث الحالي" : "عملية مسجلة", IconName: "receipt")' />
 </section>
 
 <section class="card">

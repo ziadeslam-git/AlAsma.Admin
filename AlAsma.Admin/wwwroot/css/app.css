@@ -437,3 +437,66 @@ form.inline { display: inline; margin: 0; }
 .table-wrap--responsive { overflow-x: auto; }
 .skip-link { position: fixed; z-index: 100; inset-inline-start: 12px; top: -60px; padding: 10px 16px; border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); font-weight: 600; }
 .skip-link:focus { top: 12px; color: var(--on-primary); }
+
+/* ============================================================
+   Polish pass — richer surfaces, icons on KPIs, stronger login
+   ============================================================ */
+body { background-image: radial-gradient(1200px 380px at 85% -120px, color-mix(in srgb, var(--chip-bg) 70%, transparent), transparent); background-repeat: no-repeat; }
+:root[data-theme="dark"] body { background-image: radial-gradient(1200px 380px at 85% -120px, rgba(48,105,99,.22), transparent); }
+
+/* browsers paint autofilled inputs blue/yellow: keep the brand field colour */
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-sunken) inset !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  caret-color: var(--ink);
+  transition: background-color 9999s ease-out 0s;
+}
+
+.card, .kpi { box-shadow: var(--shadow-sm); }
+.card { transition: box-shadow .2s ease; }
+.kpi { position: relative; transition: transform .2s ease, box-shadow .2s ease; }
+.kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.kpi__icon { position: absolute; inset-block-start: 18px; inset-inline-end: 18px; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--chip-bg); color: var(--primary); }
+.kpi--hero .kpi__icon { background: rgba(240,237,228,.14); color: var(--on-brand); }
+.kpi--hero { background: linear-gradient(135deg, #005a55 0%, var(--surface-brand) 48%, #003532 100%); box-shadow: 0 14px 34px rgba(0,71,67,.28); }
+.kpi--hero:hover { box-shadow: 0 18px 40px rgba(0,71,67,.34); }
+.kpi--loss { background: linear-gradient(135deg, #bd3f36, var(--danger-fill)); box-shadow: 0 14px 34px rgba(168,50,42,.25); }
+:root[data-theme="dark"] .kpi--hero { background: linear-gradient(135deg, #0a5a55 0%, #004743 55%, #00302d 100%); }
+
+.sidebar { background: linear-gradient(175deg, #005852 0%, var(--surface-brand) 42%, #003a37 100%); box-shadow: 0 18px 44px rgba(0,50,46,.28); }
+.nav-link { transition: background .15s ease, transform .15s ease; }
+.nav-link:hover { transform: translateX(-2px); }
+.nav-link[aria-current="page"] { box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.page-head__title { letter-spacing: -.2px; }
+.greeting { font-size: 36px; color: var(--primary); }
+:root[data-theme="dark"] .greeting { color: var(--ink); }
+.card__head { background: linear-gradient(180deg, color-mix(in srgb, var(--surface-sunken) 55%, var(--surface)), var(--surface)); border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); }
+.table tbody tr { transition: background .12s ease; }
+.btn--primary { box-shadow: 0 6px 16px rgba(0,71,67,.22); }
+.btn--primary:hover { box-shadow: 0 8px 20px rgba(0,71,67,.3); }
+:root[data-theme="dark"] .btn--primary { box-shadow: none; }
+
+/* ---------- Login (richer) ---------- */
+.auth { grid-template-columns: minmax(420px, 1fr) minmax(420px, 1.1fr); background: var(--bg); }
+.auth__panel { background: radial-gradient(900px 600px at 20% 10%, color-mix(in srgb, var(--chip-bg) 80%, transparent), transparent 70%), var(--bg); padding: 40px; }
+.auth__card { width: min(460px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 40px 36px; box-shadow: var(--shadow-lg); gap: 26px; }
+.auth__title { font: 700 32px/1.3 var(--font-sans); color: var(--primary); }
+:root[data-theme="dark"] .auth__title { color: var(--ink); }
+.auth .input { height: 54px; font-size: 16px; }
+.auth__brand { background: radial-gradient(900px 700px at 78% 18%, #0b6a63 0%, transparent 60%), linear-gradient(160deg, #005a55 0%, var(--surface-brand) 45%, #00302d 100%); padding: 56px 48px; }
+.auth__brand-mark { inset-inline-start: auto; inset-inline-end: -120px; top: -40px; width: 760px; opacity: .13; transform: rotate(-8deg); }
+.auth__brand-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 26px; max-width: 460px; }
+.auth__lockup { height: 200px; filter: drop-shadow(0 10px 30px rgba(0,0,0,.25)); }
+.auth__slogan { font-size: 30px; color: #e9d9ae; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+.auth__features { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.auth__features li { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 16px; background: rgba(240,237,228,.09); border: 1px solid rgba(240,237,228,.16); backdrop-filter: blur(4px); font-size: 16px; color: var(--on-brand); text-align: start; }
+.auth__features .icon { color: #e0b865; }
+.auth__help { border-radius: 16px; background: var(--surface-sunken); }
+@media (max-width: 859px) {
+  .auth__panel { padding: 0 16px 28px; background: var(--bg); }
+  .auth__card { padding: 28px 22px; border-radius: 24px; }
+  .auth__brand { padding: 36px 24px 84px; }
+  .auth__lockup { height: 110px; }
+  .auth__slogan { font-size: 20px; }
+  .auth__features { display: none; }
+}

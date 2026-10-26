@@ -26,10 +26,10 @@
 </header>
 
 <section class="kpi-grid kpi-grid--hero kpi-grid--swipe" aria-label="المؤشرات الرئيسية">
-    <partial name="_Kpi" model='new KpiModel("الإيراد الخام", Format.Whole(Model.TotalRevenue), "ج.م", "قبل خصم المصروفات · مجموع سعر البيع × الكمية", Hero: true, Tip: "الإيراد الخام: قبل خصم المصروفات")' />
-    <partial name="_Kpi" model='new KpiModel("عدد العمليات", Model.TotalSales.ToString(), Note: "عملية بيع مسجلة")' />
-    <partial name="_Kpi" model='new KpiModel("متوسط البيع", Format.Whole(averageSale), "ج.م", "لكل عملية")' />
-    <partial name="_Kpi" model='new KpiModel("المؤلفون", Model.TotalAuthors.ToString(), Note: "إيراد المؤلف الواحد ≈ " + Format.Whole(revenuePerAuthor) + " ج.م")' />
+    <partial name="_Kpi" model='new KpiModel("الإيراد الخام", Format.Whole(Model.TotalRevenue), "ج.م", "قبل خصم المصروفات · مجموع سعر البيع × الكمية", Hero: true, Tip: "الإيراد الخام: قبل خصم المصروفات", IconName: "trending-up")' />
+    <partial name="_Kpi" model='new KpiModel("عدد العمليات", Model.TotalSales.ToString(), Note: "عملية بيع مسجلة", IconName: "receipt")' />
+    <partial name="_Kpi" model='new KpiModel("متوسط البيع", Format.Whole(averageSale), "ج.م", "لكل عملية", IconName: "wallet")' />
+    <partial name="_Kpi" model='new KpiModel("المؤلفون", Model.TotalAuthors.ToString(), Note: "إيراد المؤلف الواحد ≈ " + Format.Whole(revenuePerAuthor) + " ج.م", IconName: "feather")' />
 </section>
 
 @if (Model.ExpiringAuthors.Any())

@@ -78,6 +78,7 @@
 <section class="kpi-grid kpi-grid--hero kpi-grid--swipe" aria-label="الملخص المالي">
     <div class="kpi kpi--hero@(inLoss ? " kpi--loss" : "")">
         <img class="kpi__mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+        <span class="kpi__icon" aria-hidden="true">@Icon.Svg("trending-up", 22)</span>
         <span class="kpi__label">@(inLoss ? "صافي الخسارة" : "صافي الربح")</span>
         <b class="kpi__value num">@Format.Money(profit)<span class="cur">ج.م</span></b>
         <div class="breakdown">
@@ -86,9 +87,9 @@
             <span>− العمليات <b>@Format.Money(Model.OperationsExpenses)</b></span>
         </div>
     </div>
-    <partial name="_Kpi" model='new KpiModel("إجمالي المبيعات", Format.Money(Model.TotalSales), "ج.م", Model.SalesCount + " عملية بيع", Tip: "صافي المبيعات بعد خصم مصروفات النسخ")' />
-    <partial name="_Kpi" model='new KpiModel("المصروفات الأساسية", Format.Money(Model.BasicFees), "ج.م", "تُخصم مرة واحدة")' />
-    <partial name="_Kpi" model='new KpiModel("مصروفات العمليات", Format.Money(Model.OperationsExpenses), "ج.م", Model.OperationsCount + " عملية")' />
+    <partial name="_Kpi" model='new KpiModel("إجمالي المبيعات", Format.Money(Model.TotalSales), "ج.م", Model.SalesCount + " عملية بيع", Tip: "صافي المبيعات بعد خصم مصروفات النسخ", IconName: "trending-up")' />
+    <partial name="_Kpi" model='new KpiModel("المصروفات الأساسية", Format.Money(Model.BasicFees), "ج.م", "تُخصم مرة واحدة", IconName: "tag")' />
+    <partial name="_Kpi" model='new KpiModel("مصروفات العمليات", Format.Money(Model.OperationsExpenses), "ج.م", Model.OperationsCount + " عملية", IconName: "wrench")' />
 </section>
 
 <section class="card">
