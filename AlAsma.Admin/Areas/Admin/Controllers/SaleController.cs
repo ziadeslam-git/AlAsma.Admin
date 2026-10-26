@@ -22,24 +22,28 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDashboardService _dashboardService;
         private readonly IExportService _exportService;
+        private readonly IPdfExportService _pdfExportService;
 
         public SaleController(
             ISaleService saleService,
             IAuthorService authorService,
             IUnitOfWork unitOfWork,
             IDashboardService dashboardService,
-            IExportService exportService)
+            IExportService exportService,
+            IPdfExportService pdfExportService)
         {
             _saleService = saleService;
             _authorService = authorService;
             _unitOfWork = unitOfWork;
             _dashboardService = dashboardService;
             _exportService = exportService;
+            _pdfExportService = pdfExportService;
         }
 
         // GET: Admin/Sale
         public async Task<IActionResult> Index(int page = 1, string? q = null, string? field = "book")
         {
+            page = Math.Max(1, page);
             const int pageSize = 10;
             var (sales, totalCount, totalRevenue, totalExpenses, totalQuantity) =
                 await _saleService.GetAllSalesPaginatedAsync(page, pageSize, q, field);
@@ -57,10 +61,17 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return View(sales);
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkEditExpenses(string? q, string? field, decimal newBasicExpenses)
         {
+            if (newBasicExpenses < 0 || newBasicExpenses > 1_000_000m)
+            {
+                TempData["Error"] = "قيمة المصروفات غير صحيحة";
+                return RedirectToAction("Index", new { q = q, field = field });
+            }
+
             // Build query matching the current filter (same logic as Index)
             var query = _unitOfWork.Sales.Query().AsQueryable();
 
@@ -80,6 +91,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
 
             var updatedCount = await query.ExecuteUpdateAsync(s => s
                 .SetProperty(p => p.BasicExpenses, newBasicExpenses)
+                .SetProperty(p => p.UpdatedAt, DateTime.UtcNow)
                 .SetProperty(p => p.TotalAmount, p => (p.SalePrice * p.Quantity) - (newBasicExpenses * p.Quantity) < 0 ? 0 : (p.SalePrice * p.Quantity) - (newBasicExpenses * p.Quantity)));
 
             if (updatedCount == 0)
@@ -160,6 +172,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         }
 
         // GET: Admin/Sale/Delete/5
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var sale = await _saleService.GetSaleByIdAsync(id);
@@ -172,6 +185,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         }
 
         // POST: Admin/Sale/Delete/5
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -226,10 +240,18 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             var export = await _dashboardService.GetAuthorSalesExportAsync(authorId);
             if (export == null) return NotFound();
 
-            var html = _exportService.BuildAuthorSalesHtml(export);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(html);
-            return File(bytes, "text/html; charset=utf-8",
-                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}-print.html");
+            var bytes = _pdfExportService.BuildAuthorSalesPdf(export);
+            return File(bytes, "application/pdf",
+                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}.pdf");
+        }
+
+        // GET: Admin/Sale/ExportPdf
+        [HttpGet]
+        public async Task<IActionResult> ExportPdf()
+        {
+            var sales = (await _saleService.GetAllSalesAsync()).ToList();
+            var bytes = _pdfExportService.BuildAllSalesPdf(sales, DateTime.Now);
+            return File(bytes, "application/pdf", $"AlAsma-Sales-Report-{DateTime.Now:yyyyMMdd}.pdf");
         }
 
     }

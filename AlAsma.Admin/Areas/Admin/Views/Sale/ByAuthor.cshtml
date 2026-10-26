@@ -164,6 +164,10 @@
            class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
           <span class="material-icons-round text-sm">description</span> Word
         </a>
+        <a asp-controller="Sale" asp-area="Admin" asp-action="ExportPdfByAuthor" asp-route-authorId="@Model.AuthorId"
+           class="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+          <span class="material-icons-round text-sm">picture_as_pdf</span> PDF
+        </a>
       </div>
     </div>
     <div class="overflow-x-auto">
@@ -193,7 +197,7 @@
               </td>
               <td class="py-3 px-4 text-center text-slate-700 dark:text-slate-300 text-sm">@sale.SalePrice.ToString("N2")</td>
               <td class="py-3 px-4 text-center text-slate-400 text-sm">@sale.BasicExpenses.ToString("N2")</td>
-              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@(Math.Max(0, (sale.SalePrice * sale.Quantity) - (sale.BasicExpenses * sale.Quantity)).ToString("N2"))</td>
+              <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white text-sm">@sale.TotalAmount.ToString("N2")</td>
               <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.Quantity</td>
               <td class="py-3 px-4 text-center text-slate-600 dark:text-slate-300 text-sm">@sale.StoreLocation</td>
               <td class="py-3 px-4 text-center text-xs text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM/yyyy")<br/>@sale.SaleDate.ToString("hh:mm tt")</td>

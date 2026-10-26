@@ -184,6 +184,10 @@ namespace AlAsma.Admin.Services
             var sale = await _unitOfWork.Sales.GetByIdAsync(dto.Id);
             if (sale == null) return false;
 
+            // The (possibly new) author must exist and not be deleted
+            var author = await _unitOfWork.Authors.GetByIdAsync(dto.AuthorId);
+            if (author == null || author.IsDeleted) return false;
+
             sale.BookTitle = dto.BookTitle;
             sale.AuthorId = dto.AuthorId;
             sale.StoreLocation = dto.StoreLocation;

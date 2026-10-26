@@ -17,11 +17,13 @@ namespace AlAsma.Admin.Areas.Author.Controllers
     {
         private readonly IDashboardService _dashboardService;
         private readonly IExportService _exportService;
+        private readonly IPdfExportService _pdfExportService;
 
-        public DashboardController(IDashboardService dashboardService, IExportService exportService)
+        public DashboardController(IDashboardService dashboardService, IExportService exportService, IPdfExportService pdfExportService)
         {
             _dashboardService = dashboardService;
             _exportService = exportService;
+            _pdfExportService = pdfExportService;
         }
 
         public async Task<IActionResult> Index(int salesPage = 1, int operationsPage = 1)
@@ -74,11 +76,9 @@ namespace AlAsma.Admin.Areas.Author.Controllers
             var export = await _dashboardService.GetAuthorSalesExportAsync(authorId);
             if (export == null) return NotFound();
 
-            var html = _exportService.BuildAuthorSalesHtml(export);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(html);
-            // Returns as HTML for browser print-to-PDF (no external library needed)
-            return File(bytes, "text/html; charset=utf-8",
-                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}-print.html");
+            var bytes = _pdfExportService.BuildAuthorSalesPdf(export);
+            return File(bytes, "application/pdf",
+                $"مبيعات-{export.AuthorName}-{DateTime.Now:yyyyMMdd}.pdf");
         }
     }
 }

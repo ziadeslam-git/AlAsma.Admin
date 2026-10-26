@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -7,6 +8,7 @@ namespace AlAsma.Admin.Controllers
     /// Dedicated error controller for production error handling.
     /// Does NOT depend on HomeController or area routes.
     /// </summary>
+    [AllowAnonymous]
     [Route("Error")]
     public class ErrorController : Controller
     {

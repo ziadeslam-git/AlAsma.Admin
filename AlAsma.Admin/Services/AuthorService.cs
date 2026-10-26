@@ -174,8 +174,11 @@ namespace AlAsma.Admin.Services
 
         public async Task<bool> IsCodeUniqueAsync(string code)
         {
-            // Server-side check — no full table load
-            var exists = await _unitOfWork.Authors.AnyAsync(a => a.Code == code);
+            // Server-side check — no full table load.
+            // IgnoreQueryFilters: the unique index also covers soft-deleted authors, so their codes are taken too.
+            var exists = await _unitOfWork.Authors.Query()
+                .IgnoreQueryFilters()
+                .AnyAsync(a => a.Code == code);
             return !exists;
         }
 

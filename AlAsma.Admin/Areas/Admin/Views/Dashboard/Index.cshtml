@@ -189,7 +189,7 @@
                                             <td class="py-4 px-4 text-slate-600 dark:text-slate-300 font-medium">@sale.AuthorName</td>
                                             <td class="py-4 px-4 text-center">
                                                 <span class="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 text-sm font-black text-primary">
-                                                    @(Math.Max(0, (sale.SalePrice * sale.Quantity) - (sale.BasicExpenses * sale.Quantity)).ToString("N0"))
+                                                    @sale.TotalAmount.ToString("N0")
                                                 </span>
                                             </td>
                                             <td class="py-4 px-4 text-center text-slate-500 dark:text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM")</td>

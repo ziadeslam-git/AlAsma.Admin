@@ -19,6 +19,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index(int page = 1)
         {
+            page = Math.Max(1, page);
             const int pageSize = 10;
             var (authors, totalCount) = await _authorService.GetAllAuthorsPaginatedAsync(page, pageSize);
             ViewBag.CurrentPage = page;
@@ -27,12 +28,14 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return View(authors);
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
         public IActionResult Create()
         {
             return View(new AuthorCreateDto());
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AuthorCreateDto dto)
@@ -51,6 +54,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -70,6 +74,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return View(dto);
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AuthorEditDto dto)
@@ -91,6 +96,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
@@ -99,6 +105,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return View(author);
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
