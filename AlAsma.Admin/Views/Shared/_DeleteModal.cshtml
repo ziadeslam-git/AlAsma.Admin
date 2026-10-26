@@ -1,0 +1,28 @@
+@model DeleteModalModel
+@* Confirmation modal. app.js fills the hidden "id" and the data-fact fields from the clicked row. *@
+<div class="modal" id="@Model.ModalId" role="alertdialog" aria-modal="true" aria-labelledby="@(Model.ModalId)-title" aria-hidden="true">
+    <div class="modal__panel">
+        <form asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="Delete" method="post" data-once>
+            <input type="hidden" name="id" value="0" />
+            <div class="modal__head">
+                <span class="modal__icon modal__icon--danger">@Icon.Svg("trash")</span>
+                <div>
+                    <h2 class="modal__title" id="@(Model.ModalId)-title">@Model.Title</h2>
+                    <p class="modal__text">@Model.Message</p>
+                </div>
+            </div>
+            <div class="modal__body">
+                <dl class="facts">
+                    @foreach (var fact in Model.Facts)
+                    {
+                        <div class="facts__row"><dt>@fact.Value</dt><dd data-fact="@fact.Key"></dd></div>
+                    }
+                </dl>
+            </div>
+            <div class="modal__foot">
+                <button type="button" class="btn btn--secondary" data-close>إلغاء</button>
+                <button type="submit" class="btn btn--danger">@Icon.Svg("trash", 18)حذف</button>
+            </div>
+        </form>
+    </div>
+</div>

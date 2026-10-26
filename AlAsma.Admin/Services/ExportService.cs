@@ -10,17 +10,20 @@ namespace AlAsma.Admin.Services
 {
     public class ExportService : IExportService
     {
+        // All user-entered text goes through HTML encoding before being embedded in report HTML.
+        private static string E(string? value) => System.Net.WebUtility.HtmlEncode(value ?? string.Empty);
+
         public string BuildAuthorSalesHtml(AuthorSalesExportDto d)
         {
             // Iterate d.Sales (full history), NOT RecentSales
             var rows = string.Join("", d.Sales.Select(s => $@"
     <tr>
-      <td>{s.BookTitle}</td>
+      <td>{E(s.BookTitle)}</td>
       <td style='text-align:center'>{s.SalePrice:N2}</td>
       <td style='text-align:center'>{s.BasicExpenses:N2}</td>
       <td style='text-align:center;font-weight:bold'>{s.TotalAmount:N2}</td>
       <td style='text-align:center'>{s.Quantity}</td>
-      <td style='text-align:center'>{s.StoreLocation}</td>
+      <td style='text-align:center'>{E(s.StoreLocation)}</td>
       <td style='text-align:center;direction:ltr'>{s.SaleDate:yyyy/MM/dd HH:mm}</td>
     </tr>"));
 
@@ -28,8 +31,8 @@ namespace AlAsma.Admin.Services
 
             var opsRows = string.Join("", d.Operations.Select(o => $@"
     <tr>
-      <td>{o.OperationName}</td>
-      <td style='text-align:center'>{o.BookTitle}</td>
+      <td>{E(o.OperationName)}</td>
+      <td style='text-align:center'>{E(o.BookTitle)}</td>
       <td style='text-align:center'>{o.ExpenseAmount:N2}</td>
       <td style='text-align:center'>{o.Quantity}</td>
       <td style='text-align:center;font-weight:bold'>{o.TotalAmount:N2}</td>
@@ -67,7 +70,7 @@ namespace AlAsma.Admin.Services
 <body>
 <div class='header'>
   <h1>الأسمى للنشر والتوزيع</h1>
-  <p>تقرير المبيعات والعمليات — {d.AuthorName}</p>
+  <p>تقرير المبيعات والعمليات — {E(d.AuthorName)}</p>
   <p>تاريخ التقرير: {DateTime.Now:yyyy/MM/dd}</p>
 </div>
 
@@ -148,13 +151,13 @@ namespace AlAsma.Admin.Services
 
             var rows = string.Join("", salesList.Select(s => $@"
 <tr>
-<td>{s.BookTitle}</td>
-<td>{s.AuthorName}</td>
+<td>{E(s.BookTitle)}</td>
+<td>{E(s.AuthorName)}</td>
 <td>{s.SalePrice:N2}</td>
 <td>{s.BasicExpenses:N2}</td>
 <td><strong>{s.TotalAmount:N2}</strong></td>
 <td>{s.Quantity}</td>
-<td>{s.StoreLocation}</td>
+<td>{E(s.StoreLocation)}</td>
 <td dir='ltr'>{s.SaleDate:yyyy/MM/dd HH:mm}</td>
 </tr>"));
 
@@ -200,9 +203,9 @@ namespace AlAsma.Admin.Services
 
             var rows = string.Join("", opsList.Select(o => $@"
 <tr>
-<td>{o.OperationName}</td>
-<td>{o.BookTitle}</td>
-<td>{o.AuthorName}</td>
+<td>{E(o.OperationName)}</td>
+<td>{E(o.BookTitle)}</td>
+<td>{E(o.AuthorName)}</td>
 <td>{o.ExpenseAmount:N2}</td>
 <td>{o.Quantity}</td>
 <td><strong>{o.TotalAmount:N2}</strong></td>

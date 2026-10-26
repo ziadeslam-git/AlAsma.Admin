@@ -8,34 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Author\Controllers\" />
-    <Folder Include="Areas\Author\Views\" />
-    <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\SuperAdmin\Controllers\" />
-    <Folder Include="Areas\SuperAdmin\Views\" />
-    <Folder Include="DTOs\" />
-    <Folder Include="DTOs\Auth\" />
-    <Folder Include="DTOs\Author\" />
-    <Folder Include="DTOs\Sale\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="Services\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Areas\Admin\Views\Author\" />
-    <Folder Include="Areas\Admin\Views\Sale\" />
-    <Folder Include="Areas\Admin\Views\Dashboard\" />
-    <Folder Include="Areas\SuperAdmin\" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
 </Project>

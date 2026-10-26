@@ -1,126 +1,51 @@
+@{
+    var authenticated = User.Identity?.IsAuthenticated == true;
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <script>
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-    @* Preconnect hints for external resources *@
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    @* Favicon: use lightweight favicon.ico instead of 1.5MB logo.png *@
-    <link rel="icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
-    <link rel="apple-touch-icon" href="~/images/logo.png" asp-append-version="true" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#064e3b",
-                        secondary: "#10b981",
-                        accent: "#ef4444",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
-                        "surface-light": "#ffffff",
-                        "surface-dark": "#1e293b",
-                    },
-                    fontFamily: { display: ["Cairo", "sans-serif"] },
-                    borderRadius: { DEFAULT: "0.75rem" },
-                    animation: {
-                        'pulse-vertical': 'pulse-vertical 2s cubic-bezier(0.4,0,0.6,1) infinite',
-                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                    },
-                    keyframes: {
-                        'pulse-vertical': {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' },
-                        },
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
-                }
-            }
-        };
-    </script>
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .row-hover { transition: all 0.2s ease-in-out; }
-        .row-hover:hover { background-color: rgba(16,185,129,0.05); transform: translateX(-4px); }
-        .dark .row-hover:hover { background-color: rgba(16,185,129,0.1); }
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .countdown { font-variant-numeric: tabular-nums; }
-    </style>
-    @RenderSection("Styles", required: false)
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#004743" />
     <title>@ViewData["Title"] — الأسمى للنشر والتوزيع</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/brand/asma-feather-green.svg" />
+    <link rel="icon" href="~/favicon.ico" sizes="any" />
+    <partial name="_ThemeInit" />
+    <link rel="stylesheet" href="~/css/design-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="bg-slate-50 dark:bg-background-dark text-slate-800 dark:text-gray-100 min-h-screen flex flex-col" dir="rtl">
+<body>
+    <a class="skip-link" href="#main">تخطَّ إلى المحتوى</a>
+    <div class="app">
+        @if (authenticated)
+        {
+            <partial name="_Sidebar" />
+            <partial name="_TopBar" />
+        }
 
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <partial name="_Navbar" />
-    }
+        <main class="app__main" id="main">
+            <div class="container">
+                @RenderBody()
+            </div>
+        </main>
 
-    <main class="flex-grow container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        @{ await Html.RenderPartialAsync("_Notifications"); }
-        @RenderBody()
-    </main>
-
-    <partial name="_Footer" />
-
-    <button onclick="toggleDarkMode()"
-            class="fixed bottom-4 left-4 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-secondary transition-colors z-50">
-        <span class="material-icons-round dark:hidden">dark_mode</span>
-        <span class="material-icons-round hidden dark:block">light_mode</span>
-    </button>
-
-    <script>
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
+        @if (authenticated)
+        {
+            <partial name="_BottomBar" />
+            <partial name="_MoreSheet" />
+            @if (User.IsInRole("Author"))
+            {
+                <partial name="_ReportSheet" />
             }
         }
-    </script>
+    </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/countdown.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
-    <script>
-        // Password eye toggle — always visible, works with typing, paste, and browser autofill
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.password-wrapper').forEach(function (wrapper) {
-                var input = wrapper.querySelector('input');
-                var btn = wrapper.querySelector('.eye-toggle');
-                var icon = wrapper.querySelector('.eye-icon');
-                if (!input || !btn || !icon) return;
-                btn.addEventListener('click', function () {
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.textContent = 'visibility_off';
-                    } else {
-                        input.type = 'password';
-                        icon.textContent = 'visibility';
-                    }
-                });
-            });
-        });
-    </script>
+    @await RenderSectionAsync("Overlays", required: false)
+    <partial name="_Notifications" />
+    <div class="scrim"></div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/app.js" asp-append-version="true"></script>
 </body>
 </html>

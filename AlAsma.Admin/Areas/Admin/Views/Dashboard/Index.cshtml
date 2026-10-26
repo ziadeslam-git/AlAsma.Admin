@@ -1,257 +1,122 @@
-@model AlAsma.Admin.DTOs.Dashboard.AdminDashboardDto
+@model AdminDashboardDto
+@* Shared by Admin and SuperAdmin (the SuperAdmin controller renders this same view). *@
 @{
     ViewData["Title"] = "لوحة المبيعات";
-    var today = DateTime.Now.ToString("yyyy/MM/dd");
-    var recentSalesSeries = Model.RecentSales.OrderBy(s => s.SaleDate).ToList();
-    var maxRecentSale = recentSalesSeries.Any() ? recentSalesSeries.Max(s => s.TotalAmount) : 1m;
-    var contractsTotal = Math.Max(1, Model.ActiveContracts + Model.EndingSoonContracts + Model.ExpiredContracts);
-    var activeContractsPercent = Math.Round((Model.ActiveContracts * 100m) / contractsTotal, 0);
-    var endingSoonPercent = Math.Round((Model.EndingSoonContracts * 100m) / contractsTotal, 0);
-    var averageSaleValue = Model.TotalSales > 0 ? Math.Round(Model.TotalRevenue / Model.TotalSales, 0) : 0m;
-    var revenuePerAuthor = Model.TotalAuthors > 0 ? Math.Round(Model.TotalRevenue / Model.TotalAuthors, 0) : 0m;
-    var latestRecentSale = recentSalesSeries.LastOrDefault()?.TotalAmount ?? 0m;
-    var oldestRecentSale = recentSalesSeries.FirstOrDefault()?.TotalAmount ?? latestRecentSale;
-    var salesTrendIsPositive = latestRecentSale >= oldestRecentSale;
-    var salesDelta = Math.Abs(latestRecentSale - oldestRecentSale);
-    var invariant = System.Globalization.CultureInfo.InvariantCulture;
-    var donutStyle = $"background: conic-gradient(#0f766e 0% {activeContractsPercent.ToString(invariant)}%, #f0b100 {activeContractsPercent.ToString(invariant)}% {(activeContractsPercent + endingSoonPercent).ToString(invariant)}%, #ef4444 {(activeContractsPercent + endingSoonPercent).ToString(invariant)}% 100%);";
-    var chartWidth = 340m;
-    var chartBottom = 150m;
-    var chartHeight = 102m;
-    var chartPoints = new List<string>();
-    if (recentSalesSeries.Any())
-    {
-        for (var i = 0; i < recentSalesSeries.Count; i++)
-        {
-            var x = recentSalesSeries.Count == 1 ? chartWidth / 2m : (chartWidth / (recentSalesSeries.Count - 1)) * i;
-            var progress = maxRecentSale <= 0 ? 0.12m : Math.Max(0.12m, recentSalesSeries[i].TotalAmount / maxRecentSale);
-            var y = chartBottom - (progress * chartHeight);
-            chartPoints.Add($"{x.ToString(invariant)},{y.ToString(invariant)}");
-        }
-    }
-    var salesChartPoints = string.Join(" ", chartPoints);
-    var salesAreaPoints = chartPoints.Any()
-        ? $"0,{chartBottom.ToString(invariant)} {salesChartPoints} {chartWidth.ToString(invariant)},{chartBottom.ToString(invariant)}"
-        : string.Empty;
+    var contractsTotal = Model.ActiveContracts + Model.EndingSoonContracts + Model.ExpiredContracts;
+    var activePct = contractsTotal == 0 ? 0 : (double)Model.ActiveContracts * 100 / contractsTotal;
+    var soonPct = contractsTotal == 0 ? 0 : (double)Model.EndingSoonContracts * 100 / contractsTotal;
+    var donutBackground = contractsTotal == 0
+        ? "var(--line)"
+        : FormattableString.Invariant($"conic-gradient(var(--success-ink) 0 {activePct:0.##}%, var(--accent) {activePct:0.##}% {activePct + soonPct:0.##}%, var(--danger-ink) {activePct + soonPct:0.##}% 100%)");
+    var averageSale = Model.TotalSales > 0 ? Model.TotalRevenue / Model.TotalSales : 0m;
+    var revenuePerAuthor = Model.TotalAuthors > 0 ? Model.TotalRevenue / Model.TotalAuthors : 0m;
+    var recentBars = Model.RecentSales.OrderBy(s => s.SaleDate).ToList();
+    var maxBar = recentBars.Any() ? recentBars.Max(s => s.TotalAmount) : 0m;
 }
 
-<main class="flex-grow bg-slate-50 dark:bg-slate-950/40">
-    <div class="container mx-auto px-4 sm:px-6 py-8">
-        <div class="rounded-[28px] border border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)] overflow-hidden">
-            <div class="relative border-b border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white via-white to-emerald-50/70 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/30 px-5 sm:px-8 py-6 sm:py-8">
-                <div class="relative flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
-                    <div class="max-w-2xl">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-semibold text-primary">
-                            <span class="material-icons-round text-sm">dashboard</span>
-                            نظرة تنفيذية سريعة
-                        </span>
-                        <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">لوحة المبيعات</h2>
-                    </div>
+<header class="page-head">
+    <div>
+        <h1 class="page-head__title greeting">مرحباً، @User.Identity?.Name</h1>
+        <p class="page-head__sub">لوحة المبيعات — نظرة سريعة على أداء الدار</p>
+    </div>
+    <div class="page-head__actions">
+        <span class="date-chip">@Icon.Svg("calendar", 18)<span class="num">@DateTime.Now.ToString("dd/MM/yyyy")</span></span>
+        <a class="btn btn--primary" asp-area="Admin" asp-controller="Sale" asp-action="Create">@Icon.Svg("plus", 18)عملية جديدة</a>
+    </div>
+</header>
 
-                    <div class="grid grid-cols-1 gap-3 sm:gap-4 xl:min-w-[180px]">
-                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-4 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-slate-500 dark:text-slate-400">التاريخ</span>
-                                <span class="material-icons-round text-slate-400 text-sm">calendar_today</span>
-                            </div>
-                            <p class="mt-3 text-lg font-bold text-slate-900 dark:text-white">@today</p>
+<section class="kpi-grid kpi-grid--hero kpi-grid--swipe" aria-label="المؤشرات الرئيسية">
+    <partial name="_Kpi" model='new KpiModel("الإيراد الخام", Format.Whole(Model.TotalRevenue), "ج.م", "قبل خصم المصروفات · مجموع سعر البيع × الكمية", Hero: true, Tip: "الإيراد الخام: قبل خصم المصروفات")' />
+    <partial name="_Kpi" model='new KpiModel("عدد العمليات", Model.TotalSales.ToString(), Note: "عملية بيع مسجلة")' />
+    <partial name="_Kpi" model='new KpiModel("متوسط البيع", Format.Whole(averageSale), "ج.م", "لكل عملية")' />
+    <partial name="_Kpi" model='new KpiModel("المؤلفون", Model.TotalAuthors.ToString(), Note: "إيراد المؤلف الواحد ≈ " + Format.Whole(revenuePerAuthor) + " ج.م")' />
+</section>
+
+@if (Model.ExpiringAuthors.Any())
+{
+    <section class="alert-strip" role="status" style="flex-direction:column;align-items:flex-start">
+        <span style="display:flex;align-items:center;gap:8px">@Icon.Svg("clock", 20)عقود تنتهي قريباً (@Model.ExpiringAuthors.Count)</span>
+        <div class="alert-strip__list">
+            @foreach (var author in Model.ExpiringAuthors)
+            {
+                <a class="badge badge--warning" asp-area="Admin" asp-controller="Sale" asp-action="ByAuthor" asp-route-authorId="@author.Id">
+                    @author.Name · <span class="num">@author.DaysRemaining</span> يوم
+                </a>
+            }
+        </div>
+    </section>
+}
+
+<div class="grid-2">
+    <section class="card">
+        <div class="card__head">
+            <h2 class="card__title">@Icon.Svg("trending-up", 20)اتجاه آخر المبيعات</h2>
+            <span class="muted" style="font-size:13px">صافي كل عملية · ج.م</span>
+        </div>
+        <div class="card__body">
+            @if (recentBars.Any())
+            {
+                <div class="spark" role="img" aria-label="رسم شريطي لآخر المبيعات">
+                    @foreach (var sale in recentBars)
+                    {
+                        var height = maxBar <= 0 ? 6 : Math.Max(6, (int)Math.Round((double)(sale.TotalAmount / maxBar) * 100));
+                        <div class="spark__col" title="@sale.BookTitle — @Format.Money(sale.TotalAmount) ج.م">
+                            <span class="num" style="font-size:12px;font-weight:700">@Format.Whole(sale.TotalAmount)</span>
+                            <div class="spark__bar" style="height:@(height)%"></div>
+                            <span class="spark__label num">@sale.SaleDate.ToString("dd/MM")</span>
                         </div>
-                    </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <partial name="_EmptyState" model='new EmptyModel("لا توجد مبيعات بعد", "ستظهر آخر العمليات هنا فور تسجيلها", true)' />
+            }
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card__head"><h2 class="card__title">@Icon.Svg("layers", 20)حالة العقود</h2></div>
+        <div class="card__body">
+            <div class="donut-wrap">
+                <div class="donut" style="background:@donutBackground" role="img" aria-label="توزيع العقود">
+                    <div class="donut__hole"><span class="donut__num">@contractsTotal</span><span class="donut__cap">عقد</span></div>
+                </div>
+                <div class="legend">
+                    <div class="legend__row"><span class="legend__dot" style="background:var(--success-ink)"></span>نشطة<span class="legend__val">@Model.ActiveContracts</span></div>
+                    <div class="legend__row"><span class="legend__dot" style="background:var(--accent)"></span>تنتهي قريباً<span class="legend__val">@Model.EndingSoonContracts</span></div>
+                    <div class="legend__row"><span class="legend__dot" style="background:var(--danger-ink)"></span>منتهية<span class="legend__val">@Model.ExpiredContracts</span></div>
                 </div>
             </div>
-
-            <div class="p-5 sm:p-8 space-y-6">
-                <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">العمليات</p>
-                                <p class="mt-3 text-3xl font-black text-slate-900 dark:text-white">@Model.TotalSales</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-primary flex items-center justify-center">
-                                <span class="material-icons-round">receipt_long</span>
-                            </div>
-                        </div>
-                        <div class="mt-5 flex items-center gap-2 text-xs text-emerald-600">
-                            <span class="material-icons-round text-sm">trending_up</span>
-                            <span>النشاط الحالي في مسار جيد</span>
-                        </div>
-                    </div>
-
-                    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">الإيرادات</p>
-                                <p class="mt-3 text-3xl font-black text-slate-900 dark:text-white">@Model.TotalRevenue.ToString("N0")</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-                                <span class="material-icons-round">payments</span>
-                            </div>
-                        </div>
-                       
-                    </div>
-
-                    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">متوسط البيع</p>
-                                <p class="mt-3 text-3xl font-black text-slate-900 dark:text-white">@averageSaleValue.ToString("N0")</p>
-                            </div>
-                            <div class="w-12 h-12 shrink-0 rounded-2xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 flex items-center justify-center">
-                                <span class="material-icons-round text-[22px] leading-none">analytics</span>
-                            </div>
-                        </div>
-                        <div class="mt-5 flex items-center gap-2 text-xs text-sky-600">
-                            <span class="material-icons-round text-sm">show_chart</span>
-                            <span>متوسط القيمة لكل عملية بيع</span>
-                        </div>
-                    </div>
-
-                    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">العقود النشطة</p>
-                                <p class="mt-3 text-3xl font-black text-slate-900 dark:text-white">@Model.ActiveContracts</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center">
-                                <span class="material-icons-round">verified</span>
-                            </div>
-                        </div>
-                        <div class="mt-5 flex items-center justify-between text-xs">
-                            <span class="text-slate-500 dark:text-slate-400">النسبة من الكل</span>
-                            <span class="font-semibold text-emerald-600">@activeContractsPercent%</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
-                    <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                        <div class="bg-green-50 dark:bg-green-900/30 p-2 rounded-full text-green-600"><span class="material-icons-round text-sm">check_circle</span></div>
-                        <div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">عقود نشطة</p>
-                            <p class="text-lg font-black text-green-600">@Model.ActiveContracts</p>
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                        <div class="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-full text-yellow-600"><span class="material-icons-round text-sm">schedule</span></div>
-                        <div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">تنتهي قريباً</p>
-                            <p class="text-lg font-black text-yellow-600">@Model.EndingSoonContracts</p>
-                        </div>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                        <div class="bg-red-50 dark:bg-red-900/30 p-2 rounded-full text-red-600"><span class="material-icons-round text-sm">cancel</span></div>
-                        <div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">منتهية</p>
-                            <p class="text-lg font-black text-red-600">@Model.ExpiredContracts</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="grid grid-cols-1 xl:grid-cols-[1.4fr_0.9fr] gap-6">
-                    <div class="rounded-[30px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-                        <div class="px-5 sm:px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">آخر 5 مبيعات</h3>
-                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400"></p>
-                            </div>
-                            <a asp-area="Admin" asp-controller="Sale" asp-action="Index"
-                               class="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-primary hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors">
-                                عرض الكل
-                                <span class="material-icons-round text-sm">north_west</span>
-                            </a>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-right text-sm">
-                                <thead>
-                                    <tr class="bg-slate-50 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300">
-                                        <th class="py-4 px-4 font-semibold">الكتاب</th>
-                                        <th class="py-4 px-4 font-semibold">الكاتب</th>
-                                        <th class="py-4 px-4 font-semibold text-center">المجموع</th>
-                                        <th class="py-4 px-4 font-semibold text-center">التاريخ</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                    @foreach (var sale in Model.RecentSales)
-                                    {
-                                        <tr class="hover:bg-emerald-50/40 dark:hover:bg-emerald-950/15 transition-colors">
-                                            <td class="py-4 px-4">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 flex items-center justify-center">
-                                                        <span class="material-icons-round text-[18px] leading-none">auto_stories</span>
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-semibold text-slate-900 dark:text-white">@sale.BookTitle</p>
-                                                        <p class="text-xs text-slate-400">رقم المؤلف: @sale.AuthorCode</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="py-4 px-4 text-slate-600 dark:text-slate-300 font-medium">@sale.AuthorName</td>
-                                            <td class="py-4 px-4 text-center">
-                                                <span class="inline-flex rounded-full bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 text-sm font-black text-primary">
-                                                    @(Math.Max(0, (sale.SalePrice * sale.Quantity) - (sale.BasicExpenses * sale.Quantity)).ToString("N0"))
-                                                </span>
-                                            </td>
-                                            <td class="py-4 px-4 text-center text-slate-500 dark:text-slate-400" dir="ltr">@sale.SaleDate.ToString("dd/MM")</td>
-                                        </tr>
-                                    }
-                                    @if (!Model.RecentSales.Any())
-                                    {
-                                        <tr><td colspan="4" class="py-10 text-center text-slate-400">لا توجد مبيعات حالياً</td></tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="rounded-[30px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-                        <div class="px-5 sm:px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">عقود تنتهي قريباً</h3>
-                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400"> </p>
-                            </div>
-                            <a asp-area="Admin" asp-controller="Author" asp-action="Index"
-                               class="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors">
-                                إدارة المؤلفين
-                            </a>
-                        </div>
-                        <div class="p-5 sm:p-6 space-y-4">
-                            @if (Model.ExpiringAuthors.Any())
-                            {
-                                @foreach (var author in Model.ExpiringAuthors)
-                                {
-                                    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-4">
-                                        <div class="flex items-start justify-between gap-3">
-                                            <div>
-                                                <p class="font-bold text-slate-900 dark:text-white">@author.Name</p>
-                                                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">ينتهي في @author.ContractEnd?.ToString("yyyy-MM-dd")</p>
-                                            </div>
-                                            <span class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center">
-                                                <span class="material-icons-round text-sm">schedule</span>
-                                            </span>
-                                        </div>
-                                        <div class="mt-4 flex items-center justify-between">
-                                            <span class="text-xs text-slate-500 dark:text-slate-400">المتبقي</span>
-                                            @if (author.ContractEnd.HasValue)
-                                            {
-                                                <span class="countdown text-xs font-mono font-bold text-amber-600" data-deadline="@author.ContractEnd.Value.ToString("o")">
-                                                    جاري الحساب...
-                                                </span>
-                                            }
-                                        </div>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 py-12 text-center text-slate-400">
-                                    لا توجد عقود تنتهي قريباً
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </section>
-            </div>
         </div>
+    </section>
+</div>
+
+<section class="card">
+    <div class="card__head">
+        <h2 class="card__title">@Icon.Svg("receipt", 20)آخر المبيعات</h2>
+        <a class="btn btn--ghost" asp-area="Admin" asp-controller="Sale" asp-action="Index">عرض الكل</a>
     </div>
-</main>
+    @if (Model.RecentSales.Any())
+    {
+        <div class="list-rows">
+            @foreach (var sale in Model.RecentSales)
+            {
+                <div class="list-row">
+                    <div class="list-row__main">
+                        <div class="list-row__title">@sale.BookTitle</div>
+                        <div class="cell-stack__sub">@sale.AuthorName<span class="code-chip">@sale.AuthorCode</span></div>
+                    </div>
+                    <div class="list-row__side">
+                        <div class="list-row__amount">@Format.Money(sale.TotalAmount)<span class="cur">ج.م</span></div>
+                        <div class="muted num" style="font-size:13px">@Format.DateTimeStamp(sale.SaleDate)</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyModel("لا توجد مبيعات بعد", "سجّل أول عملية بيع لتظهر هنا")' />
+    }
+</section>

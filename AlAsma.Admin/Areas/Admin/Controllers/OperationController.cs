@@ -18,17 +18,20 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
         private readonly IAuthorService _authorService;
         private readonly ILogger<OperationController> _logger;
         private readonly IExportService _exportService;
+        private readonly IPdfExportService _pdfExportService;
 
         public OperationController(
             IOperationService operationService,
             IAuthorService authorService,
             ILogger<OperationController> logger,
-            IExportService exportService)
+            IExportService exportService,
+            IPdfExportService pdfExportService)
         {
             _operationService = operationService;
             _authorService = authorService;
             _logger = logger;
             _exportService = exportService;
+            _pdfExportService = pdfExportService;
         }
 
         private async Task PopulateViewDataAsync(string? q, string? field, int page)
@@ -72,6 +75,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             }
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
@@ -144,6 +148,7 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -174,6 +179,14 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             var bytes = System.Text.Encoding.UTF8.GetBytes(html);
             return File(bytes, "application/msword",
                 $"AlAsma-Operations-Report-{DateTime.Now:yyyyMMdd}.doc");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportPdf()
+        {
+            var (operations, _, _, _, _) = await _operationService.GetAllOperationsPaginatedAsync(1, 1000000, null, null);
+            var bytes = _pdfExportService.BuildAllOperationsPdf(operations, DateTime.Now);
+            return File(bytes, "application/pdf", $"AlAsma-Operations-Report-{DateTime.Now:yyyyMMdd}.pdf");
         }
     }
 }

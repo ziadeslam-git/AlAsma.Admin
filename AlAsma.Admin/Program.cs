@@ -1,3 +1,7 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using AlAsma.Admin.Data;
 using AlAsma.Admin.Data.Seeder;
@@ -28,6 +32,7 @@ builder.Services.AddScoped<AlAsma.Admin.Interfaces.ISaleService, AlAsma.Admin.Se
 builder.Services.AddScoped<AlAsma.Admin.Interfaces.IOperationService, AlAsma.Admin.Services.OperationService>();
 builder.Services.AddScoped<AlAsma.Admin.Interfaces.IDashboardService, AlAsma.Admin.Services.DashboardService>();
 builder.Services.AddScoped<AlAsma.Admin.Interfaces.IExportService, AlAsma.Admin.Services.ExportService>();
+builder.Services.AddScoped<AlAsma.Admin.Interfaces.IPdfExportService, AlAsma.Admin.Services.PdfExportService>();
 
 // 1. Cookie Authentication
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
@@ -38,15 +43,59 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+
+        options.Cookie.Name = "AlAsma.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+        // Re-validate the signed-in user on every request: a deleted account or a changed role
+        // must lose access immediately instead of keeping a valid cookie for up to 8 hours.
+        // (The Author global query filter already excludes soft-deleted users.)
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var idValue = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var role = context.Principal?.FindFirst(ClaimTypes.Role)?.Value;
+
+            var stillValid = false;
+            if (int.TryParse(idValue, out var userId) && !string.IsNullOrEmpty(role))
+            {
+                var db = context.HttpContext.RequestServices.GetRequiredService<AlAsma.Admin.Data.AppDbContext>();
+                stillValid = await db.Authors.AsNoTracking().AnyAsync(a => a.Id == userId && a.Role == role);
+            }
+
+            if (!stillValid)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync();
+            }
+        };
     });
 
-// 2. Authorization
-builder.Services.AddAuthorization();
+// 2. Authorization — every endpoint requires a signed-in user unless it is explicitly [AllowAnonymous].
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// 3. Rate limiting — slows down password guessing on the login endpoint (per client IP).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("login", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 8,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+});
 
 var app = builder.Build();
-
-// Seed SuperAdmin
-await SuperAdminSeeder.SeedAsync(app.Services);
 
 // Apply pending migrations automatically at startup
 // This ensures new tables (like Operations) exist before any request
@@ -62,6 +111,17 @@ catch (Exception ex)
     logger.LogError(ex, "Auto-migration failed at startup. Some pages (e.g. Operations) may not work until migrations are applied manually.");
 }
 
+// Seed SuperAdmin AFTER migrations so the Authors table exists on a fresh database
+try
+{
+    await SuperAdminSeeder.SeedAsync(app.Services);
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    logger.LogError(ex, "SuperAdmin seeding failed at startup.");
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -74,12 +134,24 @@ app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Basic security headers
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
+});
+
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.MapStaticAssets().AllowAnonymous();
 
 app.MapControllerRoute(
     name: "areas",

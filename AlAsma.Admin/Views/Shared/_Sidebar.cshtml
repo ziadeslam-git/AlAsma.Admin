@@ -1,0 +1,52 @@
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var items = Navigation.For(User);
+}
+<aside class="sidebar" aria-label="القائمة الرئيسية">
+    <img class="sidebar__watermark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+
+    <button type="button" class="sidebar__brand" data-sidebar-brand aria-label="الأسمى للنشر والتوزيع">
+        <img class="sidebar__wordmark" src="~/images/brand/asma-wordmark-cream.svg" alt="الأسمى للنشر والتوزيع" />
+        <img class="sidebar__feather" src="~/images/brand/asma-feather-cream.svg" alt="الأسمى" />
+    </button>
+
+    <nav class="sidebar__nav">
+        @foreach (var item in items)
+        {
+            if (item.OpensSheet != null)
+            {
+                <button type="button" class="nav-link" data-open="@item.OpensSheet" title="@item.Label">
+                    @Icon.Svg(item.IconName)<span>@item.Label</span>
+                </button>
+            }
+            else
+            {
+                var active = Navigation.IsActive(item, area, controller);
+                <a class="nav-link" asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action"
+                   aria-current="@(active ? "page" : null)" title="@item.Label">
+                    @Icon.Svg(item.IconName)<span>@item.Label</span>
+                </a>
+            }
+        }
+    </nav>
+
+    <div class="sidebar__spacer"></div>
+
+    <div class="sidebar__user">
+        <div class="sidebar__user-row">
+            <span class="avatar" aria-hidden="true">@Navigation.Initial(User)</span>
+            <div class="sidebar__user-text" style="min-width:0">
+                <b class="sidebar__user-name">@User.Identity?.Name</b>
+                <span class="sidebar__user-role">@Navigation.RoleLabel(User)</span>
+            </div>
+        </div>
+        <div class="sidebar__user-actions">
+            <button type="button" class="btn btn--icon btn--onbrand" data-theme-toggle aria-label="الوضع الليلي" title="الوضع الليلي">@Icon.Svg("moon", 18)</button>
+            <form class="sidebar__logout" asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="btn btn--onbrand" title="تسجيل الخروج">@Icon.Svg("log-out", 18)<span class="sidebar__logout-text">تسجيل الخروج</span></button>
+            </form>
+            <button type="button" class="btn btn--icon btn--onbrand sidebar__collapse" data-sidebar-collapse aria-label="طيّ القائمة" title="طيّ / توسيع القائمة">@Icon.Svg("chevrons-right", 18)</button>
+        </div>
+    </div>
+</aside>

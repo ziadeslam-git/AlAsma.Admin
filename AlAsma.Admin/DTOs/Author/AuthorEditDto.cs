@@ -11,6 +11,8 @@ namespace AlAsma.Admin.DTOs.Author
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
+        [MinLength(6, ErrorMessage = "كلمة المرور يجب أن تكون 6 أحرف على الأقل")]
+        [MaxLength(100)]
         public string? Password { get; set; }
 
         public DateTime? ContractStart { get; set; }

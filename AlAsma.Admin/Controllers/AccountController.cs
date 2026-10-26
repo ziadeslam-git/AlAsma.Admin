@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using AlAsma.Admin.Data;
 using AlAsma.Admin.DTOs.Auth;
@@ -34,6 +35,7 @@ namespace AlAsma.Admin.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [EnableRateLimiting("login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDto dto)
         {
@@ -94,6 +96,7 @@ namespace AlAsma.Admin.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();
