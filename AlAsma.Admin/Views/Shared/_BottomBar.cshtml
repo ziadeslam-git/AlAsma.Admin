@@ -1,0 +1,30 @@
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var items = Navigation.For(User);
+    var isAuthor = User.IsInRole("Author");
+}
+<nav class="bottombar" aria-label="التنقل السفلي">
+    @foreach (var item in items)
+    {
+        if (!item.InBottomBar) { continue; }
+
+        if (item.OpensSheet != null)
+        {
+            <button type="button" class="bottombar__item" data-open="@item.OpensSheet">
+                <span class="bottombar__pill">@Icon.Svg(item.IconName)</span>@item.Label
+            </button>
+        }
+        else
+        {
+            var active = Navigation.IsActive(item, area, controller);
+            <a class="bottombar__item" asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action"
+               aria-current="@(active ? "page" : null)">
+                <span class="bottombar__pill">@Icon.Svg(item.IconName)</span>@item.Label
+            </a>
+        }
+    }
+    <button type="button" class="bottombar__item" data-open="more-sheet">
+        <span class="bottombar__pill">@Icon.Svg(isAuthor ? "user" : "more")</span>@(isAuthor ? "حسابي" : "المزيد")
+    </button>
+</nav>

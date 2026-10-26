@@ -1,0 +1,823 @@
+{
+  "version": 1,
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Light"
+      },
+      {
+        "id": "dark",
+        "name": "Dark"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "green-950",
+        "value": {
+          "light": "#00201e"
+        },
+        "usage": "Deepest green: dark-theme page background."
+      },
+      {
+        "name": "green-900",
+        "value": {
+          "light": "#002f2c"
+        },
+        "usage": "Dark-theme card surface; footer base."
+      },
+      {
+        "name": "green-800",
+        "value": {
+          "light": "#003b38"
+        },
+        "usage": "Hover state of primary on light; dark-theme sunken surface."
+      },
+      {
+        "name": "green-700",
+        "value": {
+          "light": "#004743"
+        },
+        "usage": "THE brand green, sampled from the logo (#004743). Hero, featured card, primary buttons (light theme), logo ink."
+      },
+      {
+        "name": "green-600",
+        "value": {
+          "light": "#306963"
+        },
+        "usage": "Soft green sampled from the splash feather watermark; secondary accents and illustrations."
+      },
+      {
+        "name": "green-500",
+        "value": {
+          "light": "#5a8a84"
+        },
+        "usage": "Mid green for illustrations only; never for text."
+      },
+      {
+        "name": "green-300",
+        "value": {
+          "light": "#a3c1bc"
+        },
+        "usage": "Light green for decorative blocks and dividers on brand surfaces."
+      },
+      {
+        "name": "green-200",
+        "value": {
+          "light": "#c9dcd8"
+        },
+        "usage": "Pale green for book-stage tints and chips."
+      },
+      {
+        "name": "green-100",
+        "value": {
+          "light": "#e1ece9"
+        },
+        "usage": "Chip and tag background in the light theme."
+      },
+      {
+        "name": "green-50",
+        "value": {
+          "light": "#f0f6f4"
+        },
+        "usage": "Faintest green wash; table row hover."
+      },
+      {
+        "name": "cream-50",
+        "value": {
+          "light": "#faf8f3"
+        },
+        "usage": "Light-theme page background."
+      },
+      {
+        "name": "cream-100",
+        "value": {
+          "light": "#f5f2ea"
+        },
+        "usage": "Sunken surfaces in the light theme: inputs, book stages."
+      },
+      {
+        "name": "cream-200",
+        "value": {
+          "light": "#f0ede4"
+        },
+        "usage": "The logo paper colour (#f0ede4). Text on brand green; primary button fill in the dark theme."
+      },
+      {
+        "name": "cream-300",
+        "value": {
+          "light": "#e4dfd0"
+        },
+        "usage": "Hairlines and borders in the light theme; decorative blocks."
+      },
+      {
+        "name": "cream-400",
+        "value": {
+          "light": "#cfc8b4"
+        },
+        "usage": "Heavier decorative cream; not for text."
+      },
+      {
+        "name": "brass-100",
+        "value": {
+          "light": "#f7ecd5"
+        },
+        "usage": "Soft brass wash: new-marker and warm book-stage tint (light)."
+      },
+      {
+        "name": "brass-300",
+        "value": {
+          "light": "#e0b865"
+        },
+        "usage": "Brass on dark surfaces: accent fill, stars, focus ring (dark theme)."
+      },
+      {
+        "name": "brass-400",
+        "value": {
+          "light": "#cc9a43"
+        },
+        "usage": "Mid brass for decoration."
+      },
+      {
+        "name": "brass-500",
+        "value": {
+          "light": "#b5832e"
+        },
+        "usage": "Brass accent fill: rating stars, \"new\" marker (light theme). Proposed, not from the logo."
+      },
+      {
+        "name": "brass-700",
+        "value": {
+          "light": "#805619"
+        },
+        "usage": "Brass for text on cream or white (accent text)."
+      },
+      {
+        "name": "red-100",
+        "value": {
+          "light": "#f8e1dd"
+        },
+        "usage": "Danger background wash."
+      },
+      {
+        "name": "red-600",
+        "value": {
+          "light": "#c8261d"
+        },
+        "usage": "Discount red: solid discount tag fill and sale price. Matches the red convention of Egyptian book stores."
+      },
+      {
+        "name": "red-700",
+        "value": {
+          "light": "#a8322a"
+        },
+        "usage": "Danger text and borders on light surfaces."
+      },
+      {
+        "name": "ink-900",
+        "value": {
+          "light": "#10211f"
+        },
+        "usage": "Green-black ink for body text on light surfaces."
+      },
+      {
+        "name": "bg",
+        "value": {
+          "light": "{cream-50}",
+          "dark": "{green-950}"
+        },
+        "usage": "Page background."
+      },
+      {
+        "name": "surface",
+        "value": {
+          "light": "#ffffff",
+          "dark": "{green-900}"
+        },
+        "usage": "Cards, panels, filter panel, navbar."
+      },
+      {
+        "name": "surface-sunken",
+        "value": {
+          "light": "{cream-100}",
+          "dark": "{green-800}"
+        },
+        "usage": "Inputs, book stages, segmented controls; sits on bg or surface."
+      },
+      {
+        "name": "surface-brand",
+        "value": {
+          "light": "{green-700}",
+          "dark": "{green-700}"
+        },
+        "usage": "Hero, featured book card, footer, splash loader. Text on it: on-brand or on-brand-muted."
+      },
+      {
+        "name": "on-brand",
+        "value": {
+          "light": "{cream-200}",
+          "dark": "{cream-200}"
+        },
+        "usage": "Text and icons on surface-brand."
+      },
+      {
+        "name": "on-brand-muted",
+        "value": {
+          "light": "#bcd3ce",
+          "dark": "#bcd3ce"
+        },
+        "usage": "Secondary text on surface-brand."
+      },
+      {
+        "name": "ink",
+        "value": {
+          "light": "{ink-900}",
+          "dark": "{cream-200}"
+        },
+        "usage": "Primary text on bg, surface and surface-sunken."
+      },
+      {
+        "name": "ink-muted",
+        "value": {
+          "light": "#4f605d",
+          "dark": "#a9c0bb"
+        },
+        "usage": "Secondary text (authors, captions) on bg, surface and surface-sunken."
+      },
+      {
+        "name": "ink-subtle",
+        "value": {
+          "light": "#5f6f6c",
+          "dark": "#8fa8a3"
+        },
+        "usage": "Placeholders and old prices on surface and bg. Not for essential text."
+      },
+      {
+        "name": "line",
+        "value": {
+          "light": "{cream-300}",
+          "dark": "#1e4c48"
+        },
+        "usage": "Hairline borders and dividers; decorative only."
+      },
+      {
+        "name": "line-strong",
+        "value": {
+          "light": "#7d8b88",
+          "dark": "#5b8780"
+        },
+        "usage": "Borders of controls (inputs, checkboxes, secondary buttons); 3:1 on surface and bg."
+      },
+      {
+        "name": "primary",
+        "value": {
+          "light": "{green-700}",
+          "dark": "{cream-200}"
+        },
+        "usage": "Primary button fill, prices, active nav item, selected checkbox."
+      },
+      {
+        "name": "primary-hover",
+        "value": {
+          "light": "{green-800}",
+          "dark": "{cream-50}"
+        },
+        "usage": "Hover fill of primary."
+      },
+      {
+        "name": "on-primary",
+        "value": {
+          "light": "{cream-200}",
+          "dark": "{green-800}"
+        },
+        "usage": "Text on primary."
+      },
+      {
+        "name": "accent",
+        "value": {
+          "light": "{brass-500}",
+          "dark": "{brass-300}"
+        },
+        "usage": "Brass accent fill: stars, small marker bars, accent button. Use sparingly: ratings, \"new\", best-seller. Never for discounts (those are red)."
+      },
+      {
+        "name": "on-accent",
+        "value": {
+          "light": "{ink-900}",
+          "dark": "{green-950}"
+        },
+        "usage": "Text on accent."
+      },
+      {
+        "name": "accent-soft",
+        "value": {
+          "light": "{brass-100}",
+          "dark": "#3a3320"
+        },
+        "usage": "Soft brass badge background (not for discounts)."
+      },
+      {
+        "name": "accent-ink",
+        "value": {
+          "light": "{brass-700}",
+          "dark": "{brass-300}"
+        },
+        "usage": "Text on accent-soft and surface."
+      },
+      {
+        "name": "discount",
+        "value": {
+          "light": "{red-600}",
+          "dark": "#b3261e"
+        },
+        "usage": "Solid discount tag fill; text on it is on-discount."
+      },
+      {
+        "name": "on-discount",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#ffffff"
+        },
+        "usage": "Text on discount."
+      },
+      {
+        "name": "discount-ink",
+        "value": {
+          "light": "{red-600}",
+          "dark": "#ff9d93"
+        },
+        "usage": "Sale price and discount text on surface, bg and surface-sunken."
+      },
+      {
+        "name": "success-ink",
+        "value": {
+          "light": "#1c6e4a",
+          "dark": "#7bd1a3"
+        },
+        "usage": "Success text (in stock) on surface; always paired with a word or check icon."
+      },
+      {
+        "name": "success-soft",
+        "value": {
+          "light": "#dcefe5",
+          "dark": "#0e3d2d"
+        },
+        "usage": "Success badge background."
+      },
+      {
+        "name": "danger-ink",
+        "value": {
+          "light": "{red-700}",
+          "dark": "#f4a79d"
+        },
+        "usage": "Error and out-of-stock text on surface; always paired with a word or icon."
+      },
+      {
+        "name": "danger-soft",
+        "value": {
+          "light": "{red-100}",
+          "dark": "#4a1f1b"
+        },
+        "usage": "Danger badge background."
+      },
+      {
+        "name": "focus-ring",
+        "value": {
+          "light": "{green-700}",
+          "dark": "{brass-300}"
+        },
+        "usage": "Keyboard focus outline, 2px, offset 2px; 3:1 on bg, surface and surface-sunken."
+      },
+      {
+        "name": "star",
+        "value": {
+          "light": "{brass-500}",
+          "dark": "{brass-300}"
+        },
+        "usage": "Filled rating stars."
+      },
+      {
+        "name": "chip-bg",
+        "value": {
+          "light": "{green-100}",
+          "dark": "#0d4440"
+        },
+        "usage": "Selected filter chips background; text is ink."
+      },
+      {
+        "name": "overlay",
+        "value": {
+          "light": "rgba(0,32,30,0.55)",
+          "dark": "rgba(0,0,0,0.6)"
+        },
+        "usage": "Scrim behind drawers and modals."
+      },
+      {
+        "name": "stage-green",
+        "value": {
+          "light": "{green-100}",
+          "dark": "{green-800}"
+        },
+        "usage": "Book-stage tint behind green covers."
+      },
+      {
+        "name": "stage-cream",
+        "value": {
+          "light": "{cream-300}",
+          "dark": "#12403c"
+        },
+        "usage": "Book-stage tint behind light covers."
+      },
+      {
+        "name": "stage-brass",
+        "value": {
+          "light": "{brass-100}",
+          "dark": "#2e2c1e"
+        },
+        "usage": "Book-stage tint behind warm covers."
+      },
+      {
+        "name": "stage-sage",
+        "value": {
+          "light": "{green-200}",
+          "dark": "#0a4a45"
+        },
+        "usage": "Book-stage tint behind dark covers."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [],
+    "families": {
+      "display": "\"Aref Ruqaa\", \"Amiri\", serif",
+      "sans": "\"IBM Plex Sans Arabic\", \"Segoe UI\", Tahoma, system-ui, sans-serif",
+      "reading": "\"Amiri\", \"Noto Naskh Arabic\", serif"
+    },
+    "groups": [
+      {
+        "name": "Display",
+        "family": "display",
+        "note": "",
+        "styles": [
+          {
+            "name": "display-xl",
+            "fontSize": "64px",
+            "lineHeight": "1.35",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "الكلمة أثر لا يزول",
+            "usage": "Hero headline, one per page."
+          },
+          {
+            "name": "display-lg",
+            "fontSize": "44px",
+            "lineHeight": "1.4",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "وصل حديثًا",
+            "usage": "Section titles, featured book title."
+          },
+          {
+            "name": "display-md",
+            "fontSize": "32px",
+            "lineHeight": "1.45",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "مكتبة الأسمى",
+            "usage": "Shelf titles and page headings."
+          }
+        ]
+      },
+      {
+        "name": "Headings",
+        "family": "sans",
+        "note": "",
+        "styles": [
+          {
+            "name": "h1",
+            "fontSize": "36px",
+            "lineHeight": "1.4",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Page title in the dashboard and store."
+          },
+          {
+            "name": "h2",
+            "fontSize": "28px",
+            "lineHeight": "1.45",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Section heading."
+          },
+          {
+            "name": "h3",
+            "fontSize": "22px",
+            "lineHeight": "1.5",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Card group heading."
+          },
+          {
+            "name": "h4",
+            "fontSize": "18px",
+            "lineHeight": "1.55",
+            "fontWeight": "600",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Book title in cards, filter section titles."
+          }
+        ]
+      },
+      {
+        "name": "Text",
+        "family": "sans",
+        "note": "",
+        "styles": [
+          {
+            "name": "body-lg",
+            "fontSize": "18px",
+            "lineHeight": "1.8",
+            "fontWeight": "400",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Book description, lead paragraphs."
+          },
+          {
+            "name": "body",
+            "fontSize": "16px",
+            "lineHeight": "1.75",
+            "fontWeight": "400",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Default body text."
+          },
+          {
+            "name": "body-sm",
+            "fontSize": "14px",
+            "lineHeight": "1.7",
+            "fontWeight": "400",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Authors, captions, helper text."
+          },
+          {
+            "name": "caption",
+            "fontSize": "12px",
+            "lineHeight": "1.6",
+            "fontWeight": "500",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Counts, badges, fine print."
+          },
+          {
+            "name": "label",
+            "fontSize": "14px",
+            "lineHeight": "1.4",
+            "fontWeight": "600",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Buttons, form labels, nav links."
+          }
+        ]
+      },
+      {
+        "name": "Numerals",
+        "family": "sans",
+        "note": "",
+        "styles": [
+          {
+            "name": "price-lg",
+            "fontSize": "28px",
+            "lineHeight": "1.2",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Price on the book page."
+          },
+          {
+            "name": "price",
+            "fontSize": "18px",
+            "lineHeight": "1.2",
+            "fontWeight": "700",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Price in book cards."
+          }
+        ]
+      },
+      {
+        "name": "Reading",
+        "family": "reading",
+        "note": "",
+        "styles": [
+          {
+            "name": "quote",
+            "fontSize": "22px",
+            "lineHeight": "2",
+            "fontWeight": "400",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "نقطة.. فكرة.. وأثر لا يزول!",
+            "usage": "Author quotes and the house tagline."
+          },
+          {
+            "name": "excerpt",
+            "fontSize": "18px",
+            "lineHeight": "2",
+            "fontWeight": "400",
+            "letterSpacing": "0",
+            "fontStyle": "normal",
+            "opticalSize": null,
+            "family": "",
+            "sample": "",
+            "usage": "Book excerpts and author blurbs."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "",
+    "tokens": [
+      {
+        "name": "space-1",
+        "value": "4px",
+        "usage": "Icon-to-text gaps."
+      },
+      {
+        "name": "space-2",
+        "value": "8px",
+        "usage": "Tight gaps inside controls."
+      },
+      {
+        "name": "space-3",
+        "value": "12px",
+        "usage": "Gap between title and author in cards."
+      },
+      {
+        "name": "space-4",
+        "value": "16px",
+        "usage": "Default gap, card padding."
+      },
+      {
+        "name": "space-5",
+        "value": "20px",
+        "usage": "Button horizontal padding."
+      },
+      {
+        "name": "space-6",
+        "value": "24px",
+        "usage": "Grid gutter and section card padding."
+      },
+      {
+        "name": "space-8",
+        "value": "32px",
+        "usage": "Gap between blocks."
+      },
+      {
+        "name": "space-10",
+        "value": "40px",
+        "usage": "Section padding on mobile."
+      },
+      {
+        "name": "space-12",
+        "value": "48px",
+        "usage": "Gap between page sections."
+      },
+      {
+        "name": "space-16",
+        "value": "64px",
+        "usage": "Section padding on desktop."
+      },
+      {
+        "name": "space-20",
+        "value": "80px",
+        "usage": "Hero vertical padding."
+      }
+    ]
+  },
+  "radius": {
+    "note": "",
+    "tokens": [
+      {
+        "name": "radius-xs",
+        "value": "3px",
+        "usage": "Book cover spine edge."
+      },
+      {
+        "name": "radius-sm",
+        "value": "6px",
+        "usage": "Checkboxes, small badges, book cover outer edge."
+      },
+      {
+        "name": "radius-md",
+        "value": "10px",
+        "usage": "Buttons and inputs."
+      },
+      {
+        "name": "radius-lg",
+        "value": "16px",
+        "usage": "Cards, filter panel, book stage."
+      },
+      {
+        "name": "radius-xl",
+        "value": "24px",
+        "usage": "Featured card, hero panels."
+      },
+      {
+        "name": "radius-pill",
+        "value": "999px",
+        "usage": "Chips, search field, status badges."
+      }
+    ]
+  },
+  "shadow": {
+    "note": "",
+    "tokens": [
+      {
+        "name": "shadow-sm",
+        "value": {
+          "light": "0 1px 2px rgba(0,32,30,0.06), 0 1px 1px rgba(0,32,30,0.04)",
+          "dark": "0 1px 2px rgba(0,32,30,0.06), 0 1px 1px rgba(0,32,30,0.04), 0 1px 3px rgba(0, 0, 0, 0.16)"
+        },
+        "usage": "Resting buttons and inputs."
+      },
+      {
+        "name": "shadow-md",
+        "value": {
+          "light": "0 6px 18px rgba(0,32,30,0.09)"
+        },
+        "usage": "Dropdowns and sticky bars."
+      },
+      {
+        "name": "shadow-lg",
+        "value": {
+          "light": "0 18px 44px rgba(0,32,30,0.16)"
+        },
+        "usage": "Mega menu and modals."
+      },
+      {
+        "name": "shadow-book",
+        "value": {
+          "light": "0 14px 22px -8px rgba(0,32,30,0.38), 0 3px 6px rgba(0,32,30,0.18)"
+        },
+        "usage": "Book covers resting on their stage."
+      },
+      {
+        "name": "shadow-book-lift",
+        "value": {
+          "light": "0 28px 34px -12px rgba(0,32,30,0.42), 0 6px 10px rgba(0,32,30,0.2)"
+        },
+        "usage": "Book cover on hover."
+      }
+    ]
+  },
+  "name": "Al-Asma Pro"
+}

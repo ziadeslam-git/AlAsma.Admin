@@ -1,0 +1,9 @@
+@model EmptyModel
+<div class="empty@(Model.Compact ? " empty--compact" : "")">
+    <img src="~/images/brand/asma-feather-green.svg" alt="" aria-hidden="true" />
+    <b class="empty__title">@Model.Title</b>
+    @if (!string.IsNullOrEmpty(Model.Text))
+    {
+        <span>@Model.Text</span>
+    }
+</div>

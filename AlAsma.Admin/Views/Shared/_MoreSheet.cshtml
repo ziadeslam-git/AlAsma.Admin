@@ -1,0 +1,28 @@
+@{
+    var extra = new List<NavItem>();
+    foreach (var item in Navigation.For(User))
+    {
+        if (!item.InBottomBar && item.Controller != null) { extra.Add(item); }
+    }
+}
+<div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="المزيد" aria-hidden="true">
+    <div class="sheet__grip"></div>
+    <div class="sheet__user">
+        <span class="avatar" aria-hidden="true">@Navigation.Initial(User)</span>
+        <div>
+            <b>@User.Identity?.Name</b>
+            <div class="muted" style="font-size:13px">@Navigation.RoleLabel(User) · @User.FindFirst("Code")?.Value</div>
+        </div>
+    </div>
+    <div class="sheet__list">
+        @foreach (var item in extra)
+        {
+            <a class="sheet__item" asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">@Icon.Svg(item.IconName)@item.Label</a>
+        }
+        <button type="button" class="sheet__item" data-theme-toggle>@Icon.Svg("moon")الوضع الليلي</button>
+        <a class="sheet__item" href="https://wa.me/201005340021" target="_blank" rel="noopener noreferrer">@Icon.Svg("message")تواصل واتساب · 01005340021</a>
+        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="sheet__item sheet__item--danger">@Icon.Svg("log-out")تسجيل الخروج</button>
+        </form>
+    </div>
+</div>

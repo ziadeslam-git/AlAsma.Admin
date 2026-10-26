@@ -1,0 +1,15 @@
+@* Author only: quick export of the signed-in author's own report. *@
+@{
+    var authorId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+<div class="sheet" id="report-sheet" role="dialog" aria-modal="true" aria-label="تقريري" aria-hidden="true">
+    <div class="sheet__grip"></div>
+    <div class="sheet__user">
+        <span class="avatar" aria-hidden="true">@Icon.Svg("file-text")</span>
+        <div><b>تصدير تقريري</b><div class="muted" style="font-size:13px">مبيعاتي وعملياتي وصافي ربحي</div></div>
+    </div>
+    <div class="sheet__list">
+        <a class="sheet__item" asp-area="Author" asp-controller="Dashboard" asp-action="ExportPdf" asp-route-authorId="@authorId">@Icon.Svg("file-text")تصدير PDF</a>
+        <a class="sheet__item" asp-area="Author" asp-controller="Dashboard" asp-action="ExportWord" asp-route-authorId="@authorId">@Icon.Svg("download")تصدير Word</a>
+    </div>
+</div>

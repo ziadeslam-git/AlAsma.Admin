@@ -1,0 +1,30 @@
+@model AuthorListDto
+@* Fallback delete-confirmation page for authors / admins (when JavaScript is off). ViewData: FormArea, FormController, FormTitle *@
+@{
+    var area = (string)ViewData["FormArea"]!;
+    var controller = (string)ViewData["FormController"]!;
+    var title = (string)(ViewData["FormTitle"] ?? "تأكيد الحذف");
+}
+<section class="card confirm-card">
+    <form asp-area="@area" asp-controller="@controller" asp-action="Delete" method="post" data-once>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <div class="modal__head">
+            <span class="modal__icon modal__icon--danger">@Icon.Svg("trash")</span>
+            <div>
+                <h1 class="modal__title">@title</h1>
+                <p class="modal__text">سيُحذف الحساب حذفاً ناعماً: يختفي من القوائم وتبقى بياناته التاريخية محفوظة.</p>
+            </div>
+        </div>
+        <div class="modal__body">
+            <dl class="facts">
+                <div class="facts__row"><dt>الاسم</dt><dd>@Model.Name</dd></div>
+                <div class="facts__row"><dt>الكود</dt><dd class="mono">@Model.Code</dd></div>
+                <div class="facts__row"><dt>حالة العقد</dt><dd>@Badges.Contract(Model.ContractStatus)</dd></div>
+            </dl>
+        </div>
+        <div class="modal__foot">
+            <a class="btn btn--secondary" asp-area="@area" asp-controller="@controller" asp-action="Index">إلغاء</a>
+            <button type="submit" class="btn btn--danger">@Icon.Svg("trash", 18)حذف</button>
+        </div>
+    </form>
+</section>

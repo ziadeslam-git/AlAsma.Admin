@@ -1,0 +1,26 @@
+@model KpiModel
+@{
+    var noteClass = Model.Tone == "ok" ? "kpi__note kpi__note--ok" : Model.Tone == "bad" ? "kpi__note kpi__note--bad" : "kpi__note";
+}
+<div class="kpi@(Model.Hero ? " kpi--hero" : "")">
+    @if (Model.Hero)
+    {
+        <img class="kpi__mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+    }
+    <span class="kpi__label">
+        @Model.Label
+        @if (!string.IsNullOrEmpty(Model.Tip))
+        {
+            <span class="tip" title="@Model.Tip" tabindex="0" aria-label="@Model.Tip">i</span>
+        }
+    </span>
+    <b class="kpi__value num">@Model.Value@if (!string.IsNullOrEmpty(Model.Currency)){<span class="cur">@Model.Currency</span>}</b>
+    @if (!string.IsNullOrEmpty(Model.Breakdown))
+    {
+        <div class="breakdown">@Html.Raw(Model.Breakdown)</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Note))
+    {
+        <span class="@noteClass">@Model.Note</span>
+    }
+</div>

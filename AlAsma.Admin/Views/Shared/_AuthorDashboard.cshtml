@@ -1,0 +1,197 @@
+@model AuthorDashboardDto
+@*
+    One author dashboard used by two pages:
+      - Author area  (/Author/Dashboard)        — the signed-in author's own view
+      - Admin area   (/Admin/Sale/ByAuthor)     — staff looking at any author
+    ViewData keys: PageAction ("Index"|"ByAuthor"), ExportArea/ExportController/WordAction/PdfAction, Heading, Subtitle, BackToAuthors (bool)
+*@
+@{
+    var pageAction = (string)(ViewData["PageAction"] ?? "Index");
+    var withAuthorId = pageAction == "ByAuthor";
+    var exportArea = (string?)ViewData["ExportArea"];
+    var exportController = (string)(ViewData["ExportController"] ?? "Dashboard");
+    var wordAction = (string)(ViewData["WordAction"] ?? "ExportWord");
+    var pdfAction = (string)(ViewData["PdfAction"] ?? "ExportPdf");
+    var backToAuthors = ViewData["BackToAuthors"] is true;
+
+    var profit = Model.NetProfit;
+    var inLoss = profit < 0;
+
+    double elapsedPct = 0;
+    if (Model.ContractStart.HasValue && Model.ContractEnd.HasValue && Model.ContractEnd > Model.ContractStart)
+    {
+        var span = (Model.ContractEnd.Value - Model.ContractStart.Value).TotalDays;
+        var passed = (DateTime.UtcNow - Model.ContractStart.Value).TotalDays;
+        elapsedPct = Math.Clamp(passed / span * 100, 0, 100);
+    }
+    var ring = FormattableString.Invariant($"conic-gradient({Badges.RingColor(Model.ContractStatus)} 0 {elapsedPct:0.#}%, var(--line) {elapsedPct:0.#}% 100%)");
+
+    string SalesUrl(int p) => Url.Action(pageAction, withAuthorId
+        ? new { authorId = Model.AuthorId, salesPage = p, operationsPage = Model.OperationsCurrentPage }
+        : new { salesPage = p, operationsPage = Model.OperationsCurrentPage })!;
+    string OpsUrl(int p) => Url.Action(pageAction, withAuthorId
+        ? new { authorId = Model.AuthorId, salesPage = Model.SalesCurrentPage, operationsPage = p }
+        : new { salesPage = Model.SalesCurrentPage, operationsPage = p })!;
+}
+
+<header class="page-head">
+    <div>
+        <h1 class="page-head__title">@ViewData["Heading"]</h1>
+        <p class="page-head__sub">@ViewData["Subtitle"]</p>
+    </div>
+    <div class="page-head__actions">
+        @if (backToAuthors)
+        {
+            <a class="btn btn--secondary" asp-area="Admin" asp-controller="Author" asp-action="Index">@Icon.Svg("chevron-right", 18)المؤلفون</a>
+        }
+        <div class="menu">
+            <button type="button" class="btn btn--secondary" data-menu aria-haspopup="true" aria-expanded="false">@Icon.Svg("download", 18)تصدير</button>
+            <div class="menu__panel" role="menu">
+                <a class="menu__item" role="menuitem" asp-area="@exportArea" asp-controller="@exportController" asp-action="@pdfAction" asp-route-authorId="@Model.AuthorId">@Icon.Svg("file-text", 18)تصدير PDF</a>
+                <a class="menu__item" role="menuitem" asp-area="@exportArea" asp-controller="@exportController" asp-action="@wordAction" asp-route-authorId="@Model.AuthorId">@Icon.Svg("download", 18)تصدير Word</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section class="card contract" aria-label="حالة العقد">
+    <div class="contract__ring" style="background:@ring">
+        <div class="contract__ring-hole">
+            <span class="contract__ring-num num">@(Model.DaysRemaining?.ToString() ?? "—")</span>
+            <span class="contract__ring-cap">يوم</span>
+        </div>
+    </div>
+    <div>
+        <div class="muted" style="font-size:13px">حالة العقد</div>
+        @Badges.Contract(Model.ContractStatus)
+    </div>
+    <dl class="contract__facts" style="margin-block:0">
+        <div class="contract__fact"><dt>بداية العقد</dt><dd>@(Model.ContractStart.HasValue ? Format.Date(Model.ContractStart.Value) : "—")</dd></div>
+        <div class="contract__fact"><dt>نهاية العقد</dt><dd>@(Model.ContractEnd.HasValue ? Format.Date(Model.ContractEnd.Value) : "—")</dd></div>
+        @if (Model.ContractEnd.HasValue)
+        {
+            <div class="contract__fact"><dt>المتبقي</dt><dd><span class="countdown" data-deadline="@Model.ContractEnd.Value.ToString("o")">@Model.DaysRemaining يوم</span></dd></div>
+        }
+    </dl>
+</section>
+
+<section class="kpi-grid kpi-grid--hero kpi-grid--swipe" aria-label="الملخص المالي">
+    <div class="kpi kpi--hero@(inLoss ? " kpi--loss" : "")">
+        <img class="kpi__mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+        <span class="kpi__label">@(inLoss ? "صافي الخسارة" : "صافي الربح")</span>
+        <b class="kpi__value num">@Format.Money(profit)<span class="cur">ج.م</span></b>
+        <div class="breakdown">
+            <span>المبيعات <b>@Format.Money(Model.TotalSales)</b></span>
+            <span>− الرسوم <b>@Format.Money(Model.BasicFees)</b></span>
+            <span>− العمليات <b>@Format.Money(Model.OperationsExpenses)</b></span>
+        </div>
+    </div>
+    <partial name="_Kpi" model='new KpiModel("إجمالي المبيعات", Format.Money(Model.TotalSales), "ج.م", Model.SalesCount + " عملية بيع", Tip: "صافي المبيعات بعد خصم مصروفات النسخ")' />
+    <partial name="_Kpi" model='new KpiModel("المصروفات الأساسية", Format.Money(Model.BasicFees), "ج.م", "تُخصم مرة واحدة")' />
+    <partial name="_Kpi" model='new KpiModel("مصروفات العمليات", Format.Money(Model.OperationsExpenses), "ج.م", Model.OperationsCount + " عملية")' />
+</section>
+
+<section class="card">
+    <div class="card__head">
+        <h2 class="card__title">@Icon.Svg("receipt", 20)سجل عمليات البيع</h2>
+        <span class="badge badge--neutral num">@Model.SalesCount</span>
+    </div>
+    @if (Model.RecentSales.Any())
+    {
+        <div class="table-wrap table-wrap--responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>الكتاب</th><th class="col-num">السعر</th><th class="col-num">المصروفات</th><th class="col-num">المجموع</th><th class="col-num">الكمية</th><th>المنفذ</th><th>التاريخ</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var sale in Model.RecentSales)
+                    {
+                        <tr>
+                            <td><b>@sale.BookTitle</b></td>
+                            <td class="col-num">@Format.Money(sale.SalePrice)</td>
+                            <td class="col-num muted">@Format.Money(sale.BasicExpenses)</td>
+                            <td class="col-num strong">@Format.Money(sale.TotalAmount)</td>
+                            <td class="col-num">@sale.Quantity</td>
+                            <td>@sale.StoreLocation</td>
+                            <td class="num muted nowrap">@Format.DateTimeStamp(sale.SaleDate)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="mcards">
+            @foreach (var sale in Model.RecentSales)
+            {
+                <article class="mcard">
+                    <div class="mcard__top">
+                        <div class="mcard__title">@sale.BookTitle</div>
+                        <div class="mcard__total">@Format.Money(sale.TotalAmount)<span class="cur">ج.م</span></div>
+                    </div>
+                    <dl class="mcard__meta">
+                        <div><dt>السعر</dt><dd>@Format.Money(sale.SalePrice)</dd></div>
+                        <div><dt>الكمية</dt><dd>@sale.Quantity</dd></div>
+                        <div><dt>المنفذ</dt><dd>@sale.StoreLocation</dd></div>
+                    </dl>
+                    <span class="mcard__date num">@Format.DateTimeStamp(sale.SaleDate)</span>
+                </article>
+            }
+        </div>
+        <partial name="_Pagination" model="new PagerModel(Model.SalesCurrentPage, Model.SalesTotalPages, Model.SalesCount, 10, SalesUrl)" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyModel("لا توجد مبيعات بعد", "ستظهر هنا عمليات البيع فور تسجيلها")' />
+    }
+</section>
+
+<section class="card">
+    <div class="card__head">
+        <h2 class="card__title">@Icon.Svg("wrench", 20)سجل العمليات الإضافية</h2>
+        <span class="badge badge--neutral num">@Model.OperationsCount</span>
+    </div>
+    @if (Model.RecentOperations.Any())
+    {
+        <div class="table-wrap table-wrap--responsive">
+            <table class="table">
+                <thead>
+                    <tr><th>العملية</th><th>الكتاب</th><th class="col-num">التكلفة</th><th class="col-num">الكمية</th><th class="col-num">المجموع</th><th>التاريخ</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var op in Model.RecentOperations)
+                    {
+                        <tr>
+                            <td><b>@op.OperationName</b></td>
+                            <td>@op.BookTitle</td>
+                            <td class="col-num muted">@Format.Money(op.ExpenseAmount)</td>
+                            <td class="col-num">@op.Quantity</td>
+                            <td class="col-num strong">@Format.Money(op.TotalAmount)</td>
+                            <td class="num muted nowrap">@Format.DateTimeStamp(op.OperationDate)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="mcards">
+            @foreach (var op in Model.RecentOperations)
+            {
+                <article class="mcard">
+                    <div class="mcard__top">
+                        <div class="mcard__title">@op.OperationName</div>
+                        <div class="mcard__total">@Format.Money(op.TotalAmount)<span class="cur">ج.م</span></div>
+                    </div>
+                    <dl class="mcard__meta">
+                        <div><dt>الكتاب</dt><dd>@op.BookTitle</dd></div>
+                        <div><dt>التكلفة</dt><dd>@Format.Money(op.ExpenseAmount)</dd></div>
+                        <div><dt>الكمية</dt><dd>@op.Quantity</dd></div>
+                    </dl>
+                    <span class="mcard__date num">@Format.DateTimeStamp(op.OperationDate)</span>
+                </article>
+            }
+        </div>
+        <partial name="_Pagination" model="new PagerModel(Model.OperationsCurrentPage, Model.OperationsTotalPages, Model.OperationsCount, 10, OpsUrl)" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyModel("لا توجد عمليات إضافية", "لم تُسجَّل مصروفات تشغيلية على هذا الحساب")' />
+    }
+</section>

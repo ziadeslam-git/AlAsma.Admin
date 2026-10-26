@@ -1,21 +1,23 @@
-@if (TempData["Success"] != null)
-{
-    <div class="mx-4 mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-sm flex items-center gap-2">
-        <span class="material-icons-round text-sm">check_circle</span>
-        <span>@TempData["Success"]</span>
-    </div>
+@* TempData messages (Success / Error / Warning) rendered as toasts. *@
+@functions {
+    private static string IconFor(string kind) => kind switch { "success" => "check-circle", "error" => "x-circle", _ => "alert-triangle" };
 }
-@if (TempData["Error"] != null)
-{
-    <div class="mx-4 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-2">
-        <span class="material-icons-round text-sm">error</span>
-        <span>@TempData["Error"]</span>
-    </div>
+@{
+    var messages = new List<(string Kind, string Text)>();
+    if (TempData["Success"] is string ok) { messages.Add(("success", ok)); }
+    if (TempData["Error"] is string err) { messages.Add(("error", err)); }
+    if (TempData["Warning"] is string warn) { messages.Add(("warning", warn)); }
 }
-@if (TempData["Warning"] != null)
+@if (messages.Count > 0)
 {
-    <div class="mx-4 mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl text-yellow-700 dark:text-yellow-400 text-sm flex items-center gap-2">
-        <span class="material-icons-round text-sm">warning</span>
-        <span>@TempData["Warning"]</span>
+    <div class="toasts" role="status" aria-live="polite">
+        @foreach (var (kind, text) in messages)
+        {
+            <div class="toast toast--@kind">
+                @Icon.Svg(IconFor(kind), 20)
+                <span class="toast__text">@text</span>
+                <button type="button" class="toast__close" aria-label="إغلاق">@Icon.Svg("x", 16)</button>
+            </div>
+        }
     </div>
 }

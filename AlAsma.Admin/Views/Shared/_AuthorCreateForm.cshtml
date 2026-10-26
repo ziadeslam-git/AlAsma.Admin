@@ -1,0 +1,58 @@
+@model AuthorCreateDto
+@* Shared by "add author" (Admin area) and "add admin" (SuperAdmin area). ViewData: FormArea, FormController, FormTitle, FormIcon, SubmitText *@
+@{
+    var area = (string)ViewData["FormArea"]!;
+    var controller = (string)ViewData["FormController"]!;
+    var title = (string)(ViewData["FormTitle"] ?? "إضافة");
+    var submit = (string)(ViewData["SubmitText"] ?? "حفظ");
+}
+<section class="card confirm-card">
+    <div class="card__head"><h2 class="card__title">@Icon.Svg("user", 20)@title</h2></div>
+    <form asp-area="@area" asp-controller="@controller" asp-action="Create" method="post" data-once>
+        <div class="card__body">
+            <div asp-validation-summary="ModelOnly" class="auth__alert" role="alert" style="margin-bottom:16px"></div>
+            <div class="form-grid">
+                <div class="field">
+                    <label class="field__label" asp-for="Name">الاسم<span class="req">*</span></label>
+                    <input class="input" asp-for="Name" placeholder="اسم كامل" autocomplete="off" />
+                    <span class="field__error" asp-validation-for="Name"></span>
+                </div>
+                <div class="field">
+                    <label class="field__label" asp-for="Code">كود الدخول<span class="req">*</span></label>
+                    <input class="input mono" asp-for="Code" placeholder="كود فريد" autocomplete="off" style="direction:ltr;text-align:start" />
+                    <span class="field__error" asp-validation-for="Code"></span>
+                </div>
+                <div class="field span-2">
+                    <label class="field__label" asp-for="Password">كلمة المرور<span class="req">*</span></label>
+                    <div class="input-wrap">
+                        <input class="input" asp-for="Password" type="password" placeholder="6 أحرف على الأقل" autocomplete="new-password" />
+                        <button type="button" class="input-wrap__btn" data-toggle-password aria-label="إظهار كلمة المرور">
+                            <span data-icon-show>@Icon.Svg("eye", 20)</span><span data-icon-hide hidden>@Icon.Svg("eye-off", 20)</span>
+                        </button>
+                    </div>
+                    <span class="field__error" asp-validation-for="Password"></span>
+                </div>
+                <div class="field">
+                    <label class="field__label" asp-for="ContractStart">بداية العقد</label>
+                    <input class="input" asp-for="ContractStart" type="date" asp-format="{0:yyyy-MM-dd}" />
+                    <span class="field__error" asp-validation-for="ContractStart"></span>
+                </div>
+                <div class="field">
+                    <label class="field__label" asp-for="ContractEnd">نهاية العقد</label>
+                    <input class="input" asp-for="ContractEnd" type="date" asp-format="{0:yyyy-MM-dd}" />
+                    <span class="field__error" asp-validation-for="ContractEnd"></span>
+                </div>
+                <div class="field span-2">
+                    <label class="field__label" asp-for="BasicFees">المصروفات الأساسية (ج.م)</label>
+                    <input class="input input--num" asp-for="BasicFees" type="number" step="0.01" min="0" />
+                    <span class="field__hint">مبلغ ثابت يُخصم مرة واحدة من إجمالي مبيعات صاحب الحساب.</span>
+                    <span class="field__error" asp-validation-for="BasicFees"></span>
+                </div>
+            </div>
+        </div>
+        <div class="card__foot">
+            <a class="btn btn--secondary" asp-area="@area" asp-controller="@controller" asp-action="Index">إلغاء</a>
+            <button type="submit" class="btn btn--primary">@Icon.Svg("check-circle", 18)@submit</button>
+        </div>
+    </form>
+</section>

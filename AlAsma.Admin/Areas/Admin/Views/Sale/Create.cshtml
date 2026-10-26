@@ -1,79 +1,15 @@
-@model AlAsma.Admin.DTOs.Sale.SaleCreateDto
+@model SaleCreateDto
 @{
     ViewData["Title"] = "تسجيل عملية جديدة";
 }
 
-<main class="flex-grow container mx-auto px-4 sm:px-6 py-8">
-    <div class="max-w-2xl mx-auto px-0 sm:px-4">
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm sm:shadow-md p-4 sm:p-8 border-0 sm:border border-slate-200 dark:border-slate-700">
-            <div class="flex items-center mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                <span class="material-icons-round text-primary ml-2">add_card</span>
-                <h2 class="text-xl font-bold text-slate-800 dark:text-white">تسجيل عملية جديدة</h2>
-            </div>
-            
-            <form asp-action="Create" method="post" class="space-y-5">
-                <div asp-validation-summary="ModelOnly" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm mb-3"></div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label asp-for="BookTitle" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">اسم الكتاب</label>
-                        <input asp-for="BookTitle" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3" placeholder="أدخل اسم الكتاب" />
-                        <span asp-validation-for="BookTitle" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="AuthorId" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">الكاتب</label>
-                        <select asp-for="AuthorId" asp-items="ViewBag.Authors" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3">
-                            <option value="">-- اختر الكاتب --</option>
-                        </select>
-                        <span asp-validation-for="AuthorId" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-
-                    <div>
-                        <label asp-for="StoreLocation" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">منفذ البيع</label>
-                        <input asp-for="StoreLocation" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3" placeholder="المكتب الرئيسي" />
-                        <span asp-validation-for="StoreLocation" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="SalePrice" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">سعر البيع</label>
-                        <div class="relative">
-                            <input asp-for="SalePrice" type="number" step="0.01" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3 pl-12" placeholder="0.00" />
-                            <span class="absolute left-4 top-3.5 text-slate-400 text-sm">ج.م</span>
-                        </div>
-                        <span asp-validation-for="SalePrice" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="Quantity" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">الكمية</label>
-                        <input asp-for="Quantity" type="number" min="1" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3" placeholder="1" />
-                        <span asp-validation-for="Quantity" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-                    
-                    <div>
-                        <label asp-for="BasicExpenses" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">مصروفات إضافية</label>
-                        <div class="relative">
-                            <input asp-for="BasicExpenses" type="number" step="0.01" class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-primary focus:ring-primary text-base py-3 pl-12" placeholder="0.00" />
-                            <span class="absolute left-4 top-3.5 text-slate-400 text-sm">ج.م</span>
-                        </div>
-                        <span asp-validation-for="BasicExpenses" class="text-red-500 text-xs mt-1 block"></span>
-                    </div>
-                    
-                    <input asp-for="SaleDate" type="hidden" />
-                </div>
-
-                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
-                    <a asp-action="Index" class="w-full sm:w-auto text-center px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-base font-medium transition-colors">إلغاء</a>
-                    <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-lg font-medium text-base flex items-center justify-center gap-2 transition-colors">
-                        <span class="material-icons-round text-base">save</span>
-                        حفظ العملية
-                    </button>
-                </div>
-            </form>
-        </div>
+<header class="page-head">
+    <div>
+        <h1 class="page-head__title">تسجيل عملية بيع جديدة</h1>
+        <p class="page-head__sub">أدخل بيانات البيع وسيحسب النظام المجموع النهائي تلقائياً</p>
     </div>
-</main>
+</header>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<section class="card confirm-card form-card">
+    <partial name="_SaleForm" model='"Create"' />
+</section>

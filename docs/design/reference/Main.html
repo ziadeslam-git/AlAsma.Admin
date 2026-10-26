@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الأساسات</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;family=Aref+Ruqaa:wght@700&amp;family=Amiri&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#004743}a:hover{color:#003b38}
+</style>
+</helmet>
+<div dir="rtl" style="width: 1440px; height: 1700px; box-sizing: border-box; background: #faf8f3; color: #10211f; font-family: 'IBM Plex Sans Arabic', sans-serif; display: flex; flex-direction: column">
+<header style="position: relative; overflow: hidden; background: #004743; color: #f0ede4; padding: 56px 64px; display: flex; align-items: center; justify-content: space-between">
+<img src="../assets/asma-feather-cream.svg" alt="" aria-hidden="true" style="position: absolute; inset-inline-start: -40px; top: -80px; width: 520px; opacity: 0.1">
+<div style="position: relative; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; color: #bcd3ce; font-weight: 600">AlAsma.Admin · نظام إدارة المبيعات والمؤلفين</span>
+<h1 style="margin: 0; font-family: 'Aref Ruqaa', serif; font-size: 56px; line-height: 1.35">أساسات التصميم</h1>
+<p style="margin: 0; font-family: 'Amiri', serif; font-size: 22px; color: #bcd3ce">نقطة.. فكرة.. وأثر لا يزول!</p>
+</div>
+<img src="../assets/asma-lockup-cream.svg" alt="شعار دار الأسمى للنشر والتوزيع" style="position: relative; height: 150px">
+</header>
+<main style="padding: 48px 64px; display: flex; flex-direction: column; gap: 48px">
+<section style="display: flex; flex-direction: column; gap: 20px">
+<h2 style="margin: 0; font-size: 28px">الألوان حسب الدور</h2>
+<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #004743"></div><b style="font-size: 14px">surface-brand</b><span style="font-size: 12px; color: #4f605d">#004743 · الأخضر الأساسي</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #003b38"></div><b style="font-size: 14px">primary-hover</b><span style="font-size: 12px; color: #4f605d">#003b38</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #306963"></div><b style="font-size: 14px">green-500</b><span style="font-size: 12px; color: #4f605d">#306963 · متوسط</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #e1ece9"></div><b style="font-size: 14px">chip-bg</b><span style="font-size: 12px; color: #4f605d">#e1ece9 · حالة نشطة</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #faf8f3; border: 1px solid #e4dfd0"></div><b style="font-size: 14px">bg</b><span style="font-size: 12px; color: #4f605d">#faf8f3 · الصفحة</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #f5f2ea; border: 1px solid #e4dfd0"></div><b style="font-size: 14px">surface-sunken</b><span style="font-size: 12px; color: #4f605d">#f5f2ea · الحقول</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #b5832e"></div><b style="font-size: 14px">accent (نحاسي)</b><span style="font-size: 12px; color: #4f605d">#b5832e · نادر</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="height: 88px; border-radius: 16px; background: #a8322a"></div><b style="font-size: 14px">danger-ink</b><span style="font-size: 12px; color: #4f605d">#a8322a · حذف وأخطاء فقط</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
+<div style="padding: 16px; border-radius: 16px; background: #dcefe5; color: #1c6e4a; font-weight: 600; font-size: 14px">success · نشط / ربح</div>
+<div style="padding: 16px; border-radius: 16px; background: #f7ecd5; color: #805619; font-weight: 600; font-size: 14px">warning · ينتهي قريباً</div>
+<div style="padding: 16px; border-radius: 16px; background: #f8e1dd; color: #a8322a; font-weight: 600; font-size: 14px">danger · منتهي / خسارة</div>
+<div style="padding: 16px; border-radius: 16px; background: #002f2c; color: #f0ede4; font-weight: 600; font-size: 14px">dark surface · #002f2c / bg #00201e</div>
+</div>
+</section>
+<section style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 28px">الخطوط</h2>
+<div style="display: flex; flex-direction: column; gap: 14px; background: #ffffff; border: 1px solid #e4dfd0; border-radius: 16px; padding: 24px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-family: 'Aref Ruqaa', serif; font-size: 32px; font-weight: 700">لوحة المبيعات</span><span style="font-size: 12px; color: #4f605d">display-md · Aref Ruqaa 32 · للترحيب فقط</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 28px; font-weight: 700">سجل المبيعات</span><span style="font-size: 12px; color: #4f605d">h2 · IBM Plex 28 · عنوان الصفحة</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 22px; font-weight: 700">آخر المبيعات</span><span style="font-size: 12px; color: #4f605d">h3 · 22 · عنوان القسم</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 18px; font-weight: 600">صافي الربح</span><span style="font-size: 12px; color: #4f605d">h4 · 18 · عنوان البطاقة</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 16px">نص الجداول والنماذج الأساسي</span><span style="font-size: 12px; color: #4f605d">body · 16</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #4f605d">اسم المؤلف · كود الكاتب</span><span style="font-size: 12px; color: #4f605d">body-sm · 14 (الحد الأدنى للنص)</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 36px; font-weight: 700; font-variant-numeric: tabular-nums">27,485 <span style="font-size: 16px; color: #4f605d">ج.م</span></span><span style="font-size: 12px; color: #4f605d">KPI · أرقام tabular-nums</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 12px; font-weight: 500">التسميات والشارات</span><span style="font-size: 12px; color: #4f605d">caption · 12 (لا أقل)</span></div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 28px">المسافات والزوايا والظلال</h2>
+<div style="display: flex; flex-direction: column; gap: 10px; background: #ffffff; border: 1px solid #e4dfd0; border-radius: 16px; padding: 24px">
+<div style="display: flex; align-items: center; gap: 12px"><div style="width: 4px; height: 16px; background: #306963"></div><span style="font-size: 13px">4 · space-1</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="width: 8px; height: 16px; background: #306963"></div><span style="font-size: 13px">8 · space-2</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="width: 16px; height: 16px; background: #306963"></div><span style="font-size: 13px">16 · space-4 · حشوة البطاقة</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="width: 24px; height: 16px; background: #306963"></div><span style="font-size: 13px">24 · space-6 · بين البطاقات</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><div style="width: 48px; height: 16px; background: #306963"></div><span style="font-size: 13px">48 · space-12 · بين الأقسام</span></div>
+<div style="display: flex; gap: 12px; margin-top: 8px">
+<div style="flex: 1; height: 64px; border-radius: 6px; background: #f5f2ea; display: flex; align-items: center; justify-content: center; font-size: 12px">sm 6</div>
+<div style="flex: 1; height: 64px; border-radius: 10px; background: #f5f2ea; display: flex; align-items: center; justify-content: center; font-size: 12px">md 10 أزرار</div>
+<div style="flex: 1; height: 64px; border-radius: 16px; background: #f5f2ea; display: flex; align-items: center; justify-content: center; font-size: 12px">lg 16 بطاقات</div>
+<div style="flex: 1; height: 64px; border-radius: 999px; background: #f5f2ea; display: flex; align-items: center; justify-content: center; font-size: 12px">pill شارات</div>
+</div>
+<div style="display: flex; gap: 12px; margin-top: 8px">
+<div style="flex: 1; height: 56px; border-radius: 16px; background: #fff; box-shadow: 0 1px 2px rgba(0,32,30,0.06), 0 1px 1px rgba(0,32,30,0.04); display: flex; align-items: center; justify-content: center; font-size: 12px">shadow-sm</div>
+<div style="flex: 1; height: 56px; border-radius: 16px; background: #fff; box-shadow: 0 6px 18px rgba(0,32,30,0.09); display: flex; align-items: center; justify-content: center; font-size: 12px">shadow-md</div>
+<div style="flex: 1; height: 56px; border-radius: 16px; background: #fff; box-shadow: 0 18px 44px rgba(0,32,30,0.16); display: flex; align-items: center; justify-content: center; font-size: 12px">shadow-lg</div>
+</div>
+</div>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 28px">الأيقونات · 24px · خط 1.75 · Lucide</h2>
+<div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; color: #004743">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span style="font-size: 12px; color: #4f605d">الرئيسية</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg><span style="font-size: 12px; color: #4f605d">كتاب</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 3.8a5.5 5.5 0 0 0-7.8 0L5 11.2V19h7.8l7.4-7.4a5.5 5.5 0 0 0 0-7.8z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/></svg><span style="font-size: 12px; color: #4f605d">المؤلفون</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span style="font-size: 12px; color: #4f605d">المبيعات</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg><span style="font-size: 12px; color: #4f605d">العمليات</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16a4 4 0 0 1 8 0"/></svg><span style="font-size: 12px; color: #4f605d">Admins</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg><span style="font-size: 12px; color: #4f605d">تقرير</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg><span style="font-size: 12px; color: #4f605d">تصدير</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.4 3.6a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span style="font-size: 12px; color: #4f605d">تعديل</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px; color: #a8322a"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg><span style="font-size: 12px; color: #4f605d">حذف</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg><span style="font-size: 12px; color: #4f605d">الوضع الليلي</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; background: #fff; border: 1px solid #e4dfd0; border-radius: 16px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17-5-5 5-5M11 12h10"/></svg><span style="font-size: 12px; color: #4f605d">خروج</span></div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

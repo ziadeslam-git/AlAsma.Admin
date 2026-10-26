@@ -1,0 +1,53 @@
+@model string
+@* Operation form fields. Model = "Create" or "Edit". Used by the create drawer and the edit drawer. *@
+@{
+    var mode = Model;
+    var authors = ViewBag.Authors as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var formId = mode.ToLowerInvariant() + "-operation-form";
+}
+<form id="@formId" asp-area="Admin" asp-controller="Operation" asp-action="@mode" method="post" data-once class="sale-form">
+    @if (mode == "Edit")
+    {
+        <input type="hidden" name="Id" value="0" />
+    }
+    <div class="drawer__body">
+        <div class="field">
+            <label class="field__label" for="@formId-name">بيان العملية<span class="req">*</span></label>
+            <input class="input" id="@formId-name" name="OperationName" maxlength="255" required placeholder="مثال: طباعة الغلاف" autocomplete="off" />
+        </div>
+        <div class="field">
+            <label class="field__label" for="@formId-book">الكتاب (اختياري)</label>
+            <input class="input" id="@formId-book" name="BookTitle" maxlength="255" placeholder="اتركه فارغاً لنفقة عامة" autocomplete="off" />
+        </div>
+        <div class="field">
+            <label class="field__label" for="@formId-author">المؤلف (اختياري)</label>
+            <select class="select" id="@formId-author" name="AuthorId">
+                <option value="">نفقة عامة / بدون مؤلف</option>
+                @foreach (var author in authors)
+                {
+                    <option value="@author.Value">@author.Text</option>
+                }
+            </select>
+        </div>
+        <div class="form-grid">
+            <div class="field">
+                <label class="field__label" for="@formId-cost">تكلفة الوحدة (ج.م)<span class="req">*</span></label>
+                <input class="input input--num" id="@formId-cost" name="ExpenseAmount" type="number" step="0.01" min="0" required placeholder="0.00" inputmode="decimal" />
+            </div>
+            <div class="field">
+                <label class="field__label" for="@formId-qty">الكمية<span class="req">*</span></label>
+                <input class="input input--num" id="@formId-qty" name="Quantity" type="number" min="1" step="1" value="1" required inputmode="numeric" />
+            </div>
+        </div>
+    </div>
+    <div class="drawer__foot">
+        <div class="live-total">
+            <span class="live-total__label">الإجمالي</span>
+            <span class="live-total__value" data-total="operation">0.00</span><span class="cur">ج.م</span>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn--secondary" data-close>إلغاء</button>
+            <button type="submit" class="btn btn--primary">@Icon.Svg("check-circle", 18)@(mode == "Edit" ? "حفظ التعديل" : "حفظ العملية")</button>
+        </div>
+    </div>
+</form>

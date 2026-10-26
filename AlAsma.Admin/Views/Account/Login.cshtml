@@ -1,187 +1,80 @@
-@model AlAsma.Admin.DTOs.Auth.LoginDto
+@model LoginDto
 @{
     ViewData["Title"] = "تسجيل الدخول";
     Layout = null;
+    var hasErrors = !ViewData.ModelState.IsValid && ViewData.ModelState.TryGetValue(string.Empty, out var entry) && entry.Errors.Count > 0;
 }
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="light">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#0f4240",
-                        "background-light": "#f0f2f5",
-                        "background-dark": "#0a1929",
-                        accent: "#f59e0b",
-                    },
-                    fontFamily: { display: ["Cairo", "sans-serif"] },
-                    borderRadius: { DEFAULT: "0.75rem", xl: "1rem", "2xl": "1.5rem" },
-                }
-            }
-        };
-    </script>
-    <style>body { font-family: 'Cairo', sans-serif; }</style>
-    <title>تسجيل الدخول — الأسمى للنشر</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#004743" />
+    <title>@ViewData["Title"] — الأسمى للنشر والتوزيع</title>
+    <link rel="icon" type="image/svg+xml" href="~/images/brand/asma-feather-green.svg" />
+    <link rel="icon" href="~/favicon.ico" sizes="any" />
+    <partial name="_ThemeInit" />
+    <link rel="stylesheet" href="~/css/design-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
 </head>
-<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col justify-between text-gray-800 dark:text-gray-200 transition-colors duration-300">
-<div class="flex-grow flex items-center justify-center p-4 lg:p-12 relative overflow-hidden">
-    <div class="absolute inset-0 z-0 bg-primary opacity-[0.03] dark:opacity-10 pointer-events-none"></div>
+<body>
+    <div class="auth">
+        <section class="auth__brand" aria-hidden="false">
+            <img class="auth__brand-mark" src="~/images/brand/asma-feather-cream.svg" alt="" aria-hidden="true" />
+            <img class="auth__lockup" src="~/images/brand/asma-lockup-cream.svg" alt="شعار دار الأسمى للنشر والتوزيع" />
+            <p class="auth__slogan">نقطة.. فكرة.. وأثر لا يزول!</p>
+        </section>
 
-    <div class="relative z-10 w-full max-w-5xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[600px]">
-
-        <!-- Left decorative panel -->
-        <div class="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-between items-center text-center relative overflow-hidden">
-            <div class="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-5 mix-blend-overlay"></div>
-            <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-white opacity-5 mix-blend-overlay"></div>
-            <div class="w-full flex justify-center mb-8 relative z-10">
-                <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg p-2">
-                    <img src="/images/logo.png?v=2" alt="الأسمى" class="w-full h-full object-contain rounded-full" width="128" height="128" decoding="async" loading="lazy">
-                </div>
-            </div>
-            <div class="relative z-10 space-y-4">
-                <h2 class="text-3xl font-bold text-white mb-2">دار الأسمى للنشر</h2>
-                <p class="text-lg text-white/80">
-                    مرحباً بك في بوابة الإدارة الخاصة بك.<br>
-                    تابع مبيعاتك، أدر أعمالك بكل سهولة.
-                </p>
-            </div>
-            <div class="mt-8 relative z-10 w-full max-w-sm">
-                <div class="bg-white/10 rounded-xl p-6 border border-white/20">
-                    <span class="material-icons text-white text-5xl">menu_book</span>
-                    <p class="text-white/70 mt-3 text-sm italic">"نقطة... فكرة... وأثر لا يزول"</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right login form -->
-        <div class="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-white dark:bg-gray-800">
-            <div class="flex flex-col items-center mb-6">
-              <img src="/images/logo.png?v=2"
-                   alt="الأسمى للنشر والتوزيع"
-                   class="h-20 w-20 object-contain mx-auto mb-3"
-                   width="80" height="80" decoding="async" fetchpriority="high" />
-              <h1 class="text-xl font-bold text-slate-800">الأسمى للنشر والتوزيع</h1>
-              <p class="text-sm text-slate-500 mt-1">نظام إدارة المبيعات</p>
-            </div>
-
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-xl p-4 text-red-700 dark:text-red-400 text-sm">
-                    @Html.ValidationSummary(false)
-                </div>
-            }
-
-            <form asp-controller="Account" asp-action="Login" asp-area="" method="post" class="space-y-6">
-                @Html.AntiForgeryToken()
-
+        <section class="auth__panel">
+            <div class="auth__card">
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <label asp-for="Code" class="block text-sm font-semibold text-primary dark:text-gray-300">
-                            كود المستخدم
-                        </label>
-                        <span class="material-icons text-accent text-sm">badge</span>
-                    </div>
-                    <input asp-for="Code"
-                           class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200 text-right"
-                           placeholder="أدخل الكود الخاص بك">
-                    <span asp-validation-for="Code" class="text-red-500 text-xs mt-1 block"></span>
+                    <h1 class="auth__title">تسجيل الدخول</h1>
+                    <p class="muted" style="margin-top:4px">أهلاً بك في نظام إدارة المبيعات والمؤلفين</p>
                 </div>
 
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <label asp-for="Password" class="block text-sm font-semibold text-primary dark:text-gray-300">
-                            كلمة المرور
-                        </label>
-                        <span class="material-icons text-accent text-sm">lock</span>
+                @if (hasErrors)
+                {
+                    <div class="auth__alert" role="alert">
+                        @Icon.Svg("alert-triangle", 20)
+                        <span>@Html.ValidationSummary(true)</span>
                     </div>
-                    <div class="password-wrapper relative">
-                        <input asp-for="Password"
-                               id="pwd_login"
-                               type="password"
-                               autocomplete="current-password"
-                               class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200 text-right"
-                               placeholder="••••••••">
-                        <button type="button"
-                                class="eye-toggle absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
-                            <span class="eye-icon material-icons text-xl">visibility</span>
-                        </button>
+                }
+
+                <form class="auth__form" asp-controller="Account" asp-action="Login" method="post" data-once novalidate>
+                    <div class="field">
+                        <label class="field__label" asp-for="Code">كود المستخدم</label>
+                        <input class="input" asp-for="Code" placeholder="أدخل الكود الخاص بك" autocomplete="username" autofocus />
+                        <span class="field__error" asp-validation-for="Code"></span>
                     </div>
-                    <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
-                </div>
 
-                <button type="submit"
-                        class="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 group">
-                    <span>دخول للنظام</span>
-                    <span class="material-icons group-hover:-translate-x-1 transition-transform" style="transform: scaleX(-1);">arrow_forward</span>
-                </button>
-            </form>
+                    <div class="field">
+                        <label class="field__label" asp-for="Password">كلمة المرور</label>
+                        <div class="input-wrap">
+                            <input class="input" asp-for="Password" type="password" placeholder="••••••••" autocomplete="current-password" />
+                            <button type="button" class="input-wrap__btn" data-toggle-password aria-label="إظهار كلمة المرور">
+                                <span data-icon-show>@Icon.Svg("eye", 20)</span>
+                                <span data-icon-hide hidden>@Icon.Svg("eye-off", 20)</span>
+                            </button>
+                        </div>
+                        <span class="field__error" asp-validation-for="Password"></span>
+                    </div>
 
-            <div class="mt-6 text-center space-y-2">
-                <p class="text-gray-400 dark:text-gray-500 text-sm italic">"نقطة... فكرة... وأثر لا يزول!"</p>
-                <p class="text-primary dark:text-primary/90 font-semibold text-sm">مبيعاتك بين يديك</p>
-            </div>
+                    <button type="submit" class="btn btn--primary btn--block" style="min-height:52px;font-size:16px">دخول للنظام</button>
+                </form>
 
-            @* WhatsApp support *@
-            <div class="mt-6 flex items-center justify-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                <div class="flex flex-col items-center gap-1.5">
-                    <p class="text-xs text-slate-500">تواصل معنا للدعم الفني</p>
-                    <a href="https://wa.me/201005340021"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 fill-current flex-shrink-0">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                        </svg>
-                        واتساب — 01005340021
+                <div class="auth__help">
+                    <span>تحتاج مساعدة؟ تواصل مع الدعم الفني</span>
+                    <a class="btn btn--secondary btn--sm" href="https://wa.me/201005340021" target="_blank" rel="noopener noreferrer">
+                        @Icon.Svg("message", 16)واتساب
                     </a>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
-</div>
 
-<footer class="py-4 text-center text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
-    <p>© @DateTime.Now.Year جميع الحقوق محفوظة لدار الأسمى للنشر والتوزيع</p>
-</footer>
-
-<button onclick="document.documentElement.classList.toggle('dark')"
-        class="fixed bottom-4 left-4 p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-secondary transition-colors">
-    <span class="material-icons dark:hidden">dark_mode</span>
-    <span class="material-icons hidden dark:block">light_mode</span>
-</button>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.password-wrapper').forEach(function (wrapper) {
-            var input = wrapper.querySelector('input');
-            var btn = wrapper.querySelector('.eye-toggle');
-            var icon = wrapper.querySelector('.eye-icon');
-            if (!input || !btn || !icon) return;
-            btn.addEventListener('click', function () {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.textContent = 'visibility_off';
-                } else {
-                    input.type = 'password';
-                    icon.textContent = 'visibility';
-                }
-            });
-        });
-    });
-</script>
+    <partial name="_Notifications" />
+    <div class="scrim"></div>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/app.js" asp-append-version="true"></script>
 </body>
 </html>
