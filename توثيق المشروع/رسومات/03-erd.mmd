@@ -1,0 +1,41 @@
+erDiagram
+  AUTHORS ||--o{ SALES : "تملك (AuthorId)"
+  AUTHORS ||--o{ OPERATIONS : "تتحمل (AuthorId)"
+  AUTHORS {
+    int Id PK
+    text Name
+    text Code UK
+    text Password
+    text Role
+    date ContractStart
+    date ContractEnd
+    money BasicFees
+    bool IsDeleted
+    date CreatedAt
+    date UpdatedAt
+  }
+  SALES {
+    int Id PK
+    text BookTitle
+    int AuthorId FK
+    money SalePrice
+    money BasicExpenses
+    money TotalAmount
+    int Quantity
+    text StoreLocation
+    date SaleDate
+    date CreatedAt
+    date UpdatedAt
+  }
+  OPERATIONS {
+    int Id PK
+    text BookTitle
+    int AuthorId FK
+    text OperationName
+    money ExpenseAmount
+    int Quantity
+    money TotalAmount
+    date OperationDate
+    date CreatedAt
+    date UpdatedAt
+  }

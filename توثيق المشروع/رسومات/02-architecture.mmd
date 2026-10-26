@@ -1,0 +1,6 @@
+flowchart LR
+  B["المتصفح<br/>Razor Views + Tailwind + JS"] --> C["Controllers<br/>(Areas: SuperAdmin / Admin / Author)"]
+  C --> S["Services<br/>(المنطق والحسابات)"]
+  S --> R["Repository + Unit of Work"]
+  R --> X["AppDbContext<br/>(Entity Framework Core)"]
+  X --> DB[("SQL Server")]
