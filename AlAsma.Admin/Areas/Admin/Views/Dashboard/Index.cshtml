@@ -1,17 +1,55 @@
 @model AdminDashboardDto
+@using System.Globalization
 @* Shared by Admin and SuperAdmin (the SuperAdmin controller renders this same view). *@
 @{
     ViewData["Title"] = "لوحة المبيعات";
+    var inv = CultureInfo.InvariantCulture;
+
     var contractsTotal = Model.ActiveContracts + Model.EndingSoonContracts + Model.ExpiredContracts;
-    var activePct = contractsTotal == 0 ? 0 : (double)Model.ActiveContracts * 100 / contractsTotal;
-    var soonPct = contractsTotal == 0 ? 0 : (double)Model.EndingSoonContracts * 100 / contractsTotal;
-    var donutBackground = contractsTotal == 0
-        ? "var(--line)"
-        : FormattableString.Invariant($"conic-gradient(var(--success-ink) 0 {activePct:0.##}%, var(--accent) {activePct:0.##}% {activePct + soonPct:0.##}%, var(--danger-ink) {activePct + soonPct:0.##}% 100%)");
     var averageSale = Model.TotalSales > 0 ? Model.TotalRevenue / Model.TotalSales : 0m;
     var revenuePerAuthor = Model.TotalAuthors > 0 ? Model.TotalRevenue / Model.TotalAuthors : 0m;
-    var recentBars = Model.RecentSales.OrderBy(s => s.SaleDate).ToList();
-    var maxBar = recentBars.Any() ? recentBars.Max(s => s.TotalAmount) : 0m;
+
+    // ---------- Sales trend chart (oldest on the right, newest on the left: natural RTL reading) ----------
+    var points = Model.RecentSales.OrderBy(s => s.SaleDate).ToList();
+    var n = points.Count;
+    var maxValue = n > 0 ? points.Max(s => s.TotalAmount) : 0m;
+    var avgValue = n > 0 ? points.Average(s => s.TotalAmount) : 0m;
+    var latest = n > 0 ? points[n - 1].TotalAmount : 0m;
+    var deltaPct = avgValue > 0 ? (double)((latest - avgValue) / avgValue * 100) : 0d;
+
+    double PX(int i) => n == 1 ? 50d : 94d - i * (88d / (n - 1));
+    double PY(decimal v) => maxValue <= 0 ? 44d : 45d - (double)(v / maxValue) * 36d;
+    string F(double d) => d.ToString("0.##", inv);
+
+    string SmoothPath()
+    {
+        if (n == 0) return string.Empty;
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"M{F(PX(0))},{F(PY(points[0].TotalAmount))}");
+        for (var i = 0; i < n - 1; i++)
+        {
+            var p0 = i == 0 ? i : i - 1;
+            var p3 = i + 2 < n ? i + 2 : i + 1;
+            var c1x = PX(i) + (PX(i + 1) - PX(p0)) / 6;
+            var c1y = PY(points[i].TotalAmount) + (PY(points[i + 1].TotalAmount) - PY(points[p0].TotalAmount)) / 6;
+            var c2x = PX(i + 1) - (PX(p3) - PX(i)) / 6;
+            var c2y = PY(points[i + 1].TotalAmount) - (PY(points[p3].TotalAmount) - PY(points[i].TotalAmount)) / 6;
+            sb.Append($" C{F(c1x)},{F(c1y)} {F(c2x)},{F(c2y)} {F(PX(i + 1))},{F(PY(points[i + 1].TotalAmount))}");
+        }
+        return sb.ToString();
+    }
+    var linePath = SmoothPath();
+    var areaPath = n > 1 ? linePath + $" L{F(PX(n - 1))},50 L{F(PX(0))},50 Z" : string.Empty;
+
+    // ---------- Contracts donut ----------
+    const double radius = 54, circumference = 2 * Math.PI * radius, gap = 7;
+    var slices = new[]
+    {
+        (Key: "active", Label: "نشطة", Count: Model.ActiveContracts, Color: "var(--success-ink)"),
+        (Key: "soon", Label: "تنتهي قريباً", Count: Model.EndingSoonContracts, Color: "var(--accent)"),
+        (Key: "expired", Label: "منتهية", Count: Model.ExpiredContracts, Color: "var(--danger-ink)"),
+    };
+    var offset = 0d;
 }
 
 <header class="page-head">
@@ -25,7 +63,7 @@
     </div>
 </header>
 
-<section class="kpi-grid kpi-grid--hero kpi-grid--swipe" aria-label="المؤشرات الرئيسية">
+<section class="kpi-grid kpi-grid--hero" aria-label="المؤشرات الرئيسية">
     <partial name="_Kpi" model='new KpiModel("الإيراد الخام", Format.Whole(Model.TotalRevenue), "ج.م", "قبل خصم المصروفات · مجموع سعر البيع × الكمية", Hero: true, Tip: "الإيراد الخام: قبل خصم المصروفات", IconName: "trending-up")' />
     <partial name="_Kpi" model='new KpiModel("عدد العمليات", Model.TotalSales.ToString(), Note: "عملية بيع مسجلة", IconName: "receipt")' />
     <partial name="_Kpi" model='new KpiModel("متوسط البيع", Format.Whole(averageSale), "ج.م", "لكل عملية", IconName: "wallet")' />
@@ -34,16 +72,20 @@
 
 @if (Model.ExpiringAuthors.Any())
 {
-    <section class="alert-strip" role="status" style="flex-direction:column;align-items:flex-start">
-        <span style="display:flex;align-items:center;gap:8px">@Icon.Svg("clock", 20)عقود تنتهي قريباً (@Model.ExpiringAuthors.Count)</span>
-        <div class="alert-strip__list">
-            @foreach (var author in Model.ExpiringAuthors)
-            {
-                <a class="badge badge--warning" asp-area="Admin" asp-controller="Sale" asp-action="ByAuthor" asp-route-authorId="@author.Id">
-                    @author.Name · <span class="num">@author.DaysRemaining</span> يوم
-                </a>
-            }
+    <section class="alert-strip" role="status">
+        <span class="alert-strip__icon">@Icon.Svg("clock", 22)</span>
+        <div class="alert-strip__body">
+            <b>عقود تنتهي قريباً (@Model.ExpiringAuthors.Count)</b>
+            <div class="alert-strip__list">
+                @foreach (var author in Model.ExpiringAuthors)
+                {
+                    <a class="badge badge--warning" asp-area="Admin" asp-controller="Sale" asp-action="ByAuthor" asp-route-authorId="@author.Id">
+                        @author.Name · <span class="num">@author.DaysRemaining</span> يوم
+                    </a>
+                }
+            </div>
         </div>
+        <a class="btn btn--secondary btn--sm" asp-area="Admin" asp-controller="Author" asp-action="Index" asp-route-status="soon">عرض المؤلفين @Icon.Svg("chevron-left", 16)</a>
     </section>
 }
 
@@ -51,21 +93,69 @@
     <section class="card">
         <div class="card__head">
             <h2 class="card__title">@Icon.Svg("trending-up", 20)اتجاه آخر المبيعات</h2>
-            <span class="muted" style="font-size:13px">صافي كل عملية · ج.م</span>
+            <a class="btn btn--ghost btn--sm" asp-area="Admin" asp-controller="Sale" asp-action="Index">كل المبيعات @Icon.Svg("chevron-left", 16)</a>
         </div>
         <div class="card__body">
-            @if (recentBars.Any())
+            @if (n > 0)
             {
-                <div class="spark" role="img" aria-label="رسم شريطي لآخر المبيعات">
-                    @foreach (var sale in recentBars)
-                    {
-                        var height = maxBar <= 0 ? 6 : Math.Max(6, (int)Math.Round((double)(sale.TotalAmount / maxBar) * 100));
-                        <div class="spark__col" title="@sale.BookTitle — @Format.Money(sale.TotalAmount) ج.م">
-                            <span class="num" style="font-size:12px;font-weight:700">@Format.Whole(sale.TotalAmount)</span>
-                            <div class="spark__bar" style="height:@(height)%"></div>
-                            <span class="spark__label num">@sale.SaleDate.ToString("dd/MM")</span>
+                <div class="chart">
+                    <div class="chart__stats">
+                        <div class="chart__stat">
+                            <span class="chart__stat-label">آخر عملية</span>
+                            <b class="num">@Format.Money(latest)<span class="cur">ج.م</span></b>
                         </div>
-                    }
+                        <div class="chart__stat">
+                            <span class="chart__stat-label">متوسط آخر @n عمليات</span>
+                            <b class="num">@Format.Money(avgValue)<span class="cur">ج.م</span></b>
+                        </div>
+                        <div class="chart__stat">
+                            <span class="chart__stat-label">أعلى عملية</span>
+                            <b class="num">@Format.Money(maxValue)<span class="cur">ج.م</span></b>
+                        </div>
+                        @if (n > 1 && avgValue > 0)
+                        {
+                            <span class="chart__trend @(deltaPct >= 0 ? "chart__trend--up" : "chart__trend--down")">
+                                @Icon.Svg("trending-up", 16)
+                                <span class="num" dir="ltr">@(deltaPct >= 0 ? "+" : "−")@Math.Abs(deltaPct).ToString("0", inv)%</span> عن المتوسط
+                            </span>
+                        }
+                    </div>
+
+                    <div class="chart__plot" role="img" aria-label="رسم خطي لصافي آخر عمليات البيع">
+                        <div class="chart__grid" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                        <svg class="chart__svg" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" style="stop-color:var(--green-500);stop-opacity:.38" />
+                                    <stop offset="100%" style="stop-color:var(--green-500);stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            @if (areaPath.Length > 0)
+                            {
+                                <path class="chart__area" d="@areaPath" fill="url(#trendFill)" />
+                            }
+                            <path class="chart__line" d="@linePath" />
+                        </svg>
+                        @for (var i = 0; i < n; i++)
+                        {
+                            var sale = points[i];
+                            var isLast = i == n - 1;
+                            <button type="button" class="chart__dot@(isLast ? " chart__dot--last" : "")" style="left:@(F(PX(i)))%;top:@(F(PY(sale.TotalAmount) / 50 * 100))%"
+                                    aria-label="@sale.BookTitle: @Format.Money(sale.TotalAmount) ج.م بتاريخ @Format.Date(sale.SaleDate)">
+                                <span class="chart__tip">
+                                    <b>@sale.BookTitle</b>
+                                    <span class="num">@Format.Money(sale.TotalAmount) ج.م</span>
+                                    <span class="num muted">@Format.DateTimeStamp(sale.SaleDate)</span>
+                                </span>
+                            </button>
+                        }
+                    </div>
+                    <div class="chart__axis" aria-hidden="true">
+                        @for (var i = 0; i < n; i++)
+                        {
+                            <span class="num" style="left:@(F(PX(i)))%">@points[i].SaleDate.ToString("dd/MM")</span>
+                        }
+                    </div>
                 </div>
             }
             else
@@ -76,17 +166,47 @@
     </section>
 
     <section class="card">
-        <div class="card__head"><h2 class="card__title">@Icon.Svg("layers", 20)حالة العقود</h2></div>
+        <div class="card__head">
+            <h2 class="card__title">@Icon.Svg("layers", 20)حالة العقود</h2>
+            <a class="btn btn--ghost btn--sm" asp-area="Admin" asp-controller="Author" asp-action="Index">كل المؤلفين @Icon.Svg("chevron-left", 16)</a>
+        </div>
         <div class="card__body">
-            <div class="donut-wrap">
-                <div class="donut" style="background:@donutBackground" role="img" aria-label="توزيع العقود">
-                    <div class="donut__hole"><span class="donut__num">@contractsTotal</span><span class="donut__cap">عقد</span></div>
+            <div class="donut2">
+                <div class="donut2__ring">
+                    <svg viewBox="0 0 140 140" role="img" aria-label="توزيع العقود">
+                        <circle class="donut2__track" cx="70" cy="70" r="@radius" />
+                        @if (contractsTotal > 0)
+                        {
+                            foreach (var slice in slices)
+                            {
+                                if (slice.Count == 0) { continue; }
+                                var length = Math.Max(2d, circumference * slice.Count / contractsTotal - (contractsTotal > slice.Count ? gap : 0));
+                                <circle class="donut2__seg" cx="70" cy="70" r="@radius" style="stroke:@slice.Color"
+                                        stroke-dasharray="@F(length) @F(circumference - length)" stroke-dashoffset="@F(-offset)">
+                                    <title>@slice.Label: @slice.Count</title>
+                                </circle>
+                                offset += circumference * slice.Count / contractsTotal;
+                            }
+                        }
+                    </svg>
+                    <div class="donut2__center"><b class="num">@contractsTotal</b><span>عقد</span></div>
                 </div>
-                <div class="legend">
-                    <div class="legend__row"><span class="legend__dot" style="background:var(--success-ink)"></span>نشطة<span class="legend__val">@Model.ActiveContracts</span></div>
-                    <div class="legend__row"><span class="legend__dot" style="background:var(--accent)"></span>تنتهي قريباً<span class="legend__val">@Model.EndingSoonContracts</span></div>
-                    <div class="legend__row"><span class="legend__dot" style="background:var(--danger-ink)"></span>منتهية<span class="legend__val">@Model.ExpiredContracts</span></div>
-                </div>
+
+                <ul class="donut2__legend">
+                    @foreach (var slice in slices)
+                    {
+                        var pct = contractsTotal == 0 ? 0 : (int)Math.Round(slice.Count * 100.0 / contractsTotal);
+                        <li>
+                            <a class="legend-link" asp-area="Admin" asp-controller="Author" asp-action="Index" asp-route-status="@slice.Key" title="عرض المؤلفين: @slice.Label">
+                                <span class="legend-link__dot" style="background:@slice.Color"></span>
+                                <span class="legend-link__text">@slice.Label</span>
+                                <span class="legend-link__count num">@slice.Count</span>
+                                <span class="legend-link__pct num">@pct%</span>
+                                <span class="legend-link__go">@Icon.Svg("chevron-left", 16)</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
     </section>
@@ -95,7 +215,7 @@
 <section class="card">
     <div class="card__head">
         <h2 class="card__title">@Icon.Svg("receipt", 20)آخر المبيعات</h2>
-        <a class="btn btn--ghost" asp-area="Admin" asp-controller="Sale" asp-action="Index">عرض الكل</a>
+        <a class="btn btn--ghost btn--sm" asp-area="Admin" asp-controller="Sale" asp-action="Index">عرض الكل @Icon.Svg("chevron-left", 16)</a>
     </div>
     @if (Model.RecentSales.Any())
     {

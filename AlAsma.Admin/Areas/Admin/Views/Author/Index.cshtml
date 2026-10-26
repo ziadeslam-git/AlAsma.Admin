@@ -6,7 +6,9 @@
     var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
     var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
     var totalCount = ViewBag.TotalCount is int tc ? tc : 0;
-    string PageUrl(int p) => Url.Action("Index", new { page = p })!;
+    string status = ViewBag.Status as string ?? "";
+    string PageUrl(int p) => Url.Action("Index", new { page = p, status = status == "" ? null : status })!;
+    var statusFilters = new[] { ("", "الكل"), ("active", "نشط"), ("soon", "ينتهي قريباً"), ("expired", "منتهي") };
 
     double Progress(AuthorListDto a)
     {
@@ -38,10 +40,10 @@
                 <input type="search" data-filter-input placeholder="ابحث بالاسم أو الكود في هذه الصفحة..." aria-label="بحث في المؤلفين" />
             </label>
             <div class="filter-chips" role="group" aria-label="تصفية حسب حالة العقد">
-                <button type="button" class="chip chip--active" data-filter-chip="">الكل</button>
-                <button type="button" class="chip" data-filter-chip="نشط">نشط</button>
-                <button type="button" class="chip" data-filter-chip="ينتهي قريباً">ينتهي قريباً</button>
-                <button type="button" class="chip" data-filter-chip="منتهي">منتهي</button>
+                @foreach (var (value, label) in statusFilters)
+                {
+                    <a class="chip@(status == value ? " chip--active" : "")" asp-action="Index" asp-route-status="@(value == "" ? null : value)" aria-current="@(status == value ? "true" : null)">@label</a>
+                }
             </div>
         </div>
     </div>
@@ -140,7 +142,7 @@
     }
     else
     {
-        <partial name="_EmptyState" model='new EmptyModel("لا يوجد مؤلفون بعد", isSuperAdmin ? "أضف أول مؤلف لتبدأ تسجيل المبيعات" : "سيظهر المؤلفون هنا عند إضافتهم")' />
+        <partial name="_EmptyState" model='new EmptyModel(status != "" ? "لا يوجد مؤلفون بهذه الحالة" : "لا يوجد مؤلفون بعد", status != "" ? "غيّر التصفية لعرض باقي المؤلفين" : (isSuperAdmin ? "أضف أول مؤلف لتبدأ تسجيل المبيعات" : "سيظهر المؤلفون هنا عند إضافتهم"))' />
     }
 </section>
 

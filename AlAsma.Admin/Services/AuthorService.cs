@@ -54,10 +54,22 @@ namespace AlAsma.Admin.Services
             }).ToList();
         }
 
-        public async Task<(IEnumerable<AuthorListDto> Authors, int TotalCount)> GetAllAuthorsPaginatedAsync(int page, int pageSize = 10)
+        public async Task<(IEnumerable<AuthorListDto> Authors, int TotalCount)> GetAllAuthorsPaginatedAsync(int page, int pageSize = 10, string? status = null)
         {
             var baseQuery = _unitOfWork.Authors.Query()
                 .Where(a => a.Role != "SuperAdmin" && a.Role != "Admin");
+
+            // Optional contract-status filter (same thresholds as ComputeContractStatus: 20 days = "soon")
+            var now = DateTime.UtcNow;
+            var soonLimit = now.AddDays(20);
+            baseQuery = status switch
+            {
+                "active" => baseQuery.Where(a => a.ContractEnd != null && a.ContractEnd > soonLimit),
+                "soon" => baseQuery.Where(a => a.ContractEnd != null && a.ContractEnd > now && a.ContractEnd <= soonLimit),
+                "expired" => baseQuery.Where(a => a.ContractEnd != null && a.ContractEnd <= now),
+                "undefined" => baseQuery.Where(a => a.ContractEnd == null),
+                _ => baseQuery
+            };
 
             var totalCount = await baseQuery.CountAsync();
 

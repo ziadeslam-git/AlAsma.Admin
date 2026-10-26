@@ -7,7 +7,7 @@ namespace AlAsma.Admin.Interfaces
     public interface IAuthorService
     {
         Task<IEnumerable<AuthorListDto>> GetAllAuthorsAsync();
-        Task<(IEnumerable<AuthorListDto> Authors, int TotalCount)> GetAllAuthorsPaginatedAsync(int page, int pageSize = 10);
+        Task<(IEnumerable<AuthorListDto> Authors, int TotalCount)> GetAllAuthorsPaginatedAsync(int page, int pageSize = 10, string? status = null);
         Task<AuthorListDto?> GetAuthorByIdAsync(int id);
         Task<bool> CreateAuthorAsync(AuthorCreateDto dto);
         Task<bool> UpdateAuthorAsync(AuthorEditDto dto);

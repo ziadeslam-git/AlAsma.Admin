@@ -17,11 +17,13 @@ namespace AlAsma.Admin.Areas.Admin.Controllers
             _authorService = authorService;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string? status = null)
         {
             page = Math.Max(1, page);
             const int pageSize = 10;
-            var (authors, totalCount) = await _authorService.GetAllAuthorsPaginatedAsync(page, pageSize);
+            status = status is "active" or "soon" or "expired" or "undefined" ? status : null;
+            var (authors, totalCount) = await _authorService.GetAllAuthorsPaginatedAsync(page, pageSize, status);
+            ViewBag.Status = status;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
             ViewBag.TotalCount = totalCount;

@@ -20,7 +20,7 @@
             <a class="sheet__item" asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">@Icon.Svg(item.IconName)@item.Label</a>
         }
         <button type="button" class="sheet__item" data-theme-toggle>@Icon.Svg("moon")الوضع الليلي</button>
-        <a class="sheet__item" href="https://wa.me/201005340021" target="_blank" rel="noopener noreferrer">@Icon.Svg("message")تواصل واتساب · 01005340021</a>
+        <a class="sheet__item" href="https://wa.me/201005340021" target="_blank" rel="noopener noreferrer"><span class="sheet__wa">@Icon.Whatsapp(22)</span>تواصل واتساب · 01005340021</a>
         <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
             <button type="submit" class="sheet__item sheet__item--danger">@Icon.Svg("log-out")تسجيل الخروج</button>
         </form>
